@@ -1,6 +1,6 @@
 # The Vocational Rehabilitation Business Relations Playbook
 
-Welcome to the VR Business Relations Playbook! This repository is a living document designed to equip Vocational Rehabilitation (VR) Outreach and Service Coordination teams with the latest strategies, ethical considerations, and practical tools to build robust and effective partnerships with the business community.
+Welcome to the VR Business Relations Playbook! This repository is a living document designed to equip Vocational Rehabilitation (VR) Business Coordinators  / Outreach and Service Coordination teams with the latest strategies, ethical considerations, and practical tools to build robust and effective partnerships with the business community.
 
 Our goal is to move beyond transactional placements and build a dual-customer model where both the job seeker and the business are valued clients. This approach, combined with the ethical integration of technology, can significantly enhance the effectiveness of VR services.
 
