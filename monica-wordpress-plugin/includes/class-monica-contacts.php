@@ -95,9 +95,9 @@ class Monica_Contacts {
             return;
         }
 
-        $first_name = sanitize_text_field( $_POST['monica_first_name'] );
-        $last_name  = sanitize_text_field( $_POST['monica_last_name'] );
-        $email      = sanitize_email( $_POST['monica_email'] );
+        $first_name = sanitize_text_field( $_POST['monica_first_name'] ?? '' );
+        $last_name  = sanitize_text_field( $_POST['monica_last_name'] ?? '' );
+        $email      = sanitize_email( $_POST['monica_email'] ?? '' );
 
         update_post_meta( $post_id, '_monica_first_name', $first_name );
         update_post_meta( $post_id, '_monica_last_name', $last_name );

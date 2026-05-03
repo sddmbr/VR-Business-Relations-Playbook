@@ -55,9 +55,9 @@ function monica_integration_add_reminder() {
             return;
         }
 
-        $contact_id = absint( $_POST['monica_contact_id'] );
-        $title      = sanitize_text_field( $_POST['monica_reminder_title'] );
-        $date       = sanitize_text_field( $_POST['monica_reminder_date'] );
+        $contact_id = absint( $_POST['monica_contact_id'] ?? 0 );
+        $title      = sanitize_text_field( $_POST['monica_reminder_title'] ?? '' );
+        $date       = sanitize_text_field( $_POST['monica_reminder_date'] ?? '' );
 
         if ( ! $contact_id || ! $title || ! $date ) {
             return;
@@ -83,8 +83,8 @@ function monica_integration_add_note() {
             return;
         }
 
-        $contact_id = absint( $_POST['monica_contact_id'] );
-        $body       = wp_kses_post( $_POST['monica_note_body'] );
+        $contact_id = absint( $_POST['monica_contact_id'] ?? 0 );
+        $body       = wp_kses_post( $_POST['monica_note_body'] ?? '' );
 
         if ( ! $contact_id || ! $body ) {
             return;
@@ -109,9 +109,9 @@ function monica_integration_add_relationship() {
             return;
         }
 
-        $contact_id           = absint( $_POST['monica_contact_id'] );
-        $related_contact_id   = absint( $_POST['monica_related_contact_id'] );
-        $relationship_type_id = absint( $_POST['monica_relationship_type_id'] );
+        $contact_id           = absint( $_POST['monica_contact_id'] ?? 0 );
+        $related_contact_id   = absint( $_POST['monica_related_contact_id'] ?? 0 );
+        $relationship_type_id = absint( $_POST['monica_relationship_type_id'] ?? 0 );
 
         if ( ! $contact_id || ! $related_contact_id || ! $relationship_type_id ) {
             return;
