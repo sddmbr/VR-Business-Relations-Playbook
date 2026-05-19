@@ -58,6 +58,7 @@ class Monica_Reminders {
                 <input type="date" id="monica_reminder_date" name="monica_reminder_date" />
             </p>
             <input type="hidden" name="monica_contact_id" value="<?php echo esc_attr( $monica_contact_id ); ?>" />
+            <input type="hidden" name="monica_post_id" value="<?php echo esc_attr( $post->ID ); ?>" />
             <?php wp_nonce_field( 'monica_add_reminder', 'monica_add_reminder_nonce' ); ?>
             <input type="submit" name="monica_add_reminder" class="button" value="<?php _e( 'Add Reminder', 'monica-integration' ); ?>" />
         </form>

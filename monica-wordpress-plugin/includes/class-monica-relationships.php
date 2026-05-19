@@ -83,6 +83,7 @@ class Monica_Relationships {
                 </select>
             </p>
             <input type="hidden" name="monica_contact_id" value="<?php echo esc_attr( $monica_contact_id ); ?>" />
+            <input type="hidden" name="monica_post_id" value="<?php echo esc_attr( $post->ID ); ?>" />
             <?php wp_nonce_field( 'monica_add_relationship', 'monica_add_relationship_nonce' ); ?>
             <input type="submit" name="monica_add_relationship" class="button" value="<?php _e( 'Add Relationship', 'monica-integration' ); ?>" />
         </form>
