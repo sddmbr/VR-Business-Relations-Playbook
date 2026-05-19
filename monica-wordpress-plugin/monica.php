@@ -35,6 +35,10 @@ add_action( 'plugins_loaded', 'monica_integration_init' );
 
 function monica_integration_oauth_redirect() {
     if ( isset( $_GET['page'] ) && 'monica-integration' === $_GET['page'] && isset( $_GET['code'] ) ) {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+
         $api = new Monica_API();
         $redirect_uri = admin_url( 'options-general.php?page=monica-integration' );
         $data = $api->get_access_token( $_GET['code'], $redirect_uri );
@@ -52,6 +56,11 @@ add_action( 'admin_init', 'monica_integration_oauth_redirect' );
 function monica_integration_add_reminder() {
     if ( isset( $_POST['monica_add_reminder'] ) && isset( $_POST['monica_add_reminder_nonce'] ) ) {
         if ( ! wp_verify_nonce( $_POST['monica_add_reminder_nonce'], 'monica_add_reminder' ) ) {
+            return;
+        }
+
+        $post_id = absint( $_POST['monica_post_id'] ?? 0 );
+        if ( ! current_user_can( 'edit_post', $post_id ) ) {
             return;
         }
 
@@ -83,6 +92,11 @@ function monica_integration_add_note() {
             return;
         }
 
+        $post_id = absint( $_POST['monica_post_id'] ?? 0 );
+        if ( ! current_user_can( 'edit_post', $post_id ) ) {
+            return;
+        }
+
         $contact_id = absint( $_POST['monica_contact_id'] );
         $body       = wp_kses_post( $_POST['monica_note_body'] );
 
@@ -106,6 +120,11 @@ add_action( 'admin_init', 'monica_integration_add_note' );
 function monica_integration_add_relationship() {
     if ( isset( $_POST['monica_add_relationship'] ) && isset( $_POST['monica_add_relationship_nonce'] ) ) {
         if ( ! wp_verify_nonce( $_POST['monica_add_relationship_nonce'], 'monica_add_relationship' ) ) {
+            return;
+        }
+
+        $post_id = absint( $_POST['monica_post_id'] ?? 0 );
+        if ( ! current_user_can( 'edit_post', $post_id ) ) {
             return;
         }
 

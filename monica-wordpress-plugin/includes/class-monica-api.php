@@ -4,6 +4,9 @@ class Monica_API {
 
     private $api_url = 'https://app.monicahq.com/api/';
 
+    public function __construct() {
+        // Constructor
+    }
 
     public function get_authorization_url( $redirect_uri ) {
         $params = [
