@@ -51,6 +51,7 @@ class Monica_Notes {
                 <textarea id="monica_note_body" name="monica_note_body" rows="5" style="width: 100%;"></textarea>
             </p>
             <input type="hidden" name="monica_contact_id" value="<?php echo esc_attr( $monica_contact_id ); ?>" />
+            <input type="hidden" name="monica_post_id" value="<?php echo esc_attr( $post->ID ); ?>" />
             <?php wp_nonce_field( 'monica_add_note', 'monica_add_note_nonce' ); ?>
             <input type="submit" name="monica_add_note" class="button" value="<?php _e( 'Add Note', 'monica-integration' ); ?>" />
         </form>
