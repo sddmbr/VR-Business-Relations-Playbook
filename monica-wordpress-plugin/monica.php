@@ -35,15 +35,25 @@ add_action( 'plugins_loaded', 'monica_integration_init' );
 
 function monica_integration_oauth_redirect() {
     if ( isset( $_GET['page'] ) && 'monica-integration' === $_GET['page'] && isset( $_GET['code'] ) ) {
-        $api = new Monica_API();
-        $redirect_uri = admin_url( 'options-general.php?page=monica-integration' );
-        $data = $api->get_access_token( $_GET['code'], $redirect_uri );
-
-        if ( isset( $data['access_token'] ) ) {
-            update_option( 'monica_access_token', $data['access_token'] );
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'monica-integration' ) );
         }
 
-        wp_redirect( $redirect_uri );
+        $redirect_uri = admin_url( 'options-general.php?page=monica-integration' );
+
+        if ( ! isset( $_GET['state'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['state'] ) ), 'monica_oauth_state' ) ) {
+            wp_safe_redirect( add_query_arg( 'error', 'invalid_state', $redirect_uri ) );
+            exit;
+        }
+
+        $api = new Monica_API();
+        $data = $api->get_access_token( sanitize_text_field( wp_unslash( $_GET['code'] ) ), $redirect_uri );
+
+        if ( isset( $data['access_token'] ) ) {
+            update_option( 'monica_access_token', sanitize_text_field( $data['access_token'] ) );
+        }
+
+        wp_safe_redirect( $redirect_uri );
         exit;
     }
 }

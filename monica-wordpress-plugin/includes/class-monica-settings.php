@@ -5,6 +5,17 @@ class Monica_Settings {
     public function __construct() {
         add_action( 'admin_menu', [ $this, 'add_settings_page' ] );
         add_action( 'admin_init', [ $this, 'register_settings' ] );
+        add_action( 'admin_notices', [ $this, 'display_admin_notices' ] );
+    }
+
+    public function display_admin_notices() {
+        if ( isset( $_GET['page'] ) && 'monica-integration' === $_GET['page'] && isset( $_GET['error'] ) && 'invalid_state' === $_GET['error'] ) {
+            ?>
+            <div class="notice notice-error is-dismissible">
+                <p><?php _e( 'OAuth authorization failed: Invalid state parameter. This could be due to a CSRF attempt or an expired session. Please try again.', 'monica-integration' ); ?></p>
+            </div>
+            <?php
+        }
     }
 
     public function add_settings_page() {
