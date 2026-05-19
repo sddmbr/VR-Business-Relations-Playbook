@@ -28,6 +28,10 @@ class Monica_API {
             'body' => $params,
         ] );
 
+        if ( is_wp_error( $response ) ) {
+            return $response;
+        }
+
         $body = wp_remote_retrieve_body( $response );
         $data = json_decode( $body, true );
 
