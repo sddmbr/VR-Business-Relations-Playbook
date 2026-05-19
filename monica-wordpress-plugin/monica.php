@@ -39,7 +39,7 @@ function monica_integration_oauth_redirect() {
         $redirect_uri = admin_url( 'options-general.php?page=monica-integration' );
         $data = $api->get_access_token( $_GET['code'], $redirect_uri );
 
-        if ( isset( $data['access_token'] ) ) {
+        if ( ! is_wp_error( $data ) && isset( $data['access_token'] ) ) {
             update_option( 'monica_access_token', $data['access_token'] );
         }
 
@@ -71,7 +71,7 @@ function monica_integration_add_reminder() {
             ] ),
         ] );
 
-        wp_redirect( $_SERVER['HTTP_REFERER'] );
+        wp_redirect( wp_get_referer() ? wp_get_referer() : admin_url() );
         exit;
     }
 }
@@ -97,7 +97,7 @@ function monica_integration_add_note() {
             ] ),
         ] );
 
-        wp_redirect( $_SERVER['HTTP_REFERER'] );
+        wp_redirect( wp_get_referer() ? wp_get_referer() : admin_url() );
         exit;
     }
 }
@@ -126,7 +126,7 @@ function monica_integration_add_relationship() {
             ] ),
         ] );
 
-        wp_redirect( $_SERVER['HTTP_REFERER'] );
+        wp_redirect( wp_get_referer() ? wp_get_referer() : admin_url() );
         exit;
     }
 }
