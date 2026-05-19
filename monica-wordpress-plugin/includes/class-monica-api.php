@@ -10,6 +10,7 @@ class Monica_API {
             'client_id'     => get_option( 'monica_client_id' ),
             'redirect_uri'  => $redirect_uri,
             'response_type' => 'code',
+            'state'         => wp_create_nonce( 'monica_oauth_state' ),
         ];
 
         return 'https://app.monicahq.com/oauth/authorize?' . http_build_query( $params );
