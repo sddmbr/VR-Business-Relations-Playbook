@@ -67,9 +67,16 @@ class Monica_Relationships {
                 <select id="monica_related_contact_id" name="monica_related_contact_id">
                     <?php
                     $contacts = get_posts( [
-                        'post_type'      => 'monica_contact',
-                        'posts_per_page' => -1,
-                        'post__not_in'   => [ $post->ID ],
+                        'post_type'              => 'monica_contact',
+                        'posts_per_page'         => -1,
+                        'post__not_in'           => [ $post->ID ],
+                        'meta_query'             => [
+                            [
+                                'key'     => '_monica_contact_id',
+                                'compare' => 'EXISTS',
+                            ],
+                        ],
+                        'update_post_meta_cache' => true,
                     ] );
                     if ( ! empty( $contacts ) ) {
                         foreach ( $contacts as $contact ) {
