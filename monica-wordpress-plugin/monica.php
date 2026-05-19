@@ -35,6 +35,10 @@ add_action( 'plugins_loaded', 'monica_integration_init' );
 
 function monica_integration_oauth_redirect() {
     if ( isset( $_GET['page'] ) && 'monica-integration' === $_GET['page'] && isset( $_GET['code'] ) ) {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+
         $api = new Monica_API();
         $redirect_uri = admin_url( 'options-general.php?page=monica-integration' );
         $data = $api->get_access_token( $_GET['code'], $redirect_uri );
@@ -43,21 +47,26 @@ function monica_integration_oauth_redirect() {
             update_option( 'monica_access_token', $data['access_token'] );
         }
 
-        wp_redirect( $redirect_uri );
+        wp_safe_redirect( $redirect_uri );
         exit;
     }
 }
 add_action( 'admin_init', 'monica_integration_oauth_redirect' );
 
 function monica_integration_add_reminder() {
-    if ( isset( $_POST['monica_add_reminder'] ) && isset( $_POST['monica_add_reminder_nonce'] ) ) {
+    if ( isset( $_POST['monica_add_reminder'], $_POST['monica_add_reminder_nonce'] ) ) {
         if ( ! wp_verify_nonce( $_POST['monica_add_reminder_nonce'], 'monica_add_reminder' ) ) {
             return;
         }
 
-        $contact_id = absint( $_POST['monica_contact_id'] );
-        $title      = sanitize_text_field( $_POST['monica_reminder_title'] );
-        $date       = sanitize_text_field( $_POST['monica_reminder_date'] );
+        $post_id = (int) ( $_POST['monica_post_id'] ?? 0 );
+        if ( ! current_user_can( 'edit_post', $post_id ) ) {
+            return;
+        }
+
+        $contact_id = absint( $_POST['monica_contact_id'] ?? 0 );
+        $title      = sanitize_text_field( $_POST['monica_reminder_title'] ?? '' );
+        $date       = sanitize_text_field( $_POST['monica_reminder_date'] ?? '' );
 
         if ( ! $contact_id || ! $title || ! $date ) {
             return;
@@ -71,20 +80,25 @@ function monica_integration_add_reminder() {
             ] ),
         ] );
 
-        wp_redirect( $_SERVER['HTTP_REFERER'] );
+        wp_safe_redirect( wp_get_referer() ?: admin_url() );
         exit;
     }
 }
 add_action( 'admin_init', 'monica_integration_add_reminder' );
 
 function monica_integration_add_note() {
-    if ( isset( $_POST['monica_add_note'] ) && isset( $_POST['monica_add_note_nonce'] ) ) {
+    if ( isset( $_POST['monica_add_note'], $_POST['monica_add_note_nonce'] ) ) {
         if ( ! wp_verify_nonce( $_POST['monica_add_note_nonce'], 'monica_add_note' ) ) {
             return;
         }
 
-        $contact_id = absint( $_POST['monica_contact_id'] );
-        $body       = wp_kses_post( $_POST['monica_note_body'] );
+        $post_id = (int) ( $_POST['monica_post_id'] ?? 0 );
+        if ( ! current_user_can( 'edit_post', $post_id ) ) {
+            return;
+        }
+
+        $contact_id = absint( $_POST['monica_contact_id'] ?? 0 );
+        $body       = wp_kses_post( $_POST['monica_note_body'] ?? '' );
 
         if ( ! $contact_id || ! $body ) {
             return;
@@ -97,21 +111,26 @@ function monica_integration_add_note() {
             ] ),
         ] );
 
-        wp_redirect( $_SERVER['HTTP_REFERER'] );
+        wp_safe_redirect( wp_get_referer() ?: admin_url() );
         exit;
     }
 }
 add_action( 'admin_init', 'monica_integration_add_note' );
 
 function monica_integration_add_relationship() {
-    if ( isset( $_POST['monica_add_relationship'] ) && isset( $_POST['monica_add_relationship_nonce'] ) ) {
+    if ( isset( $_POST['monica_add_relationship'], $_POST['monica_add_relationship_nonce'] ) ) {
         if ( ! wp_verify_nonce( $_POST['monica_add_relationship_nonce'], 'monica_add_relationship' ) ) {
             return;
         }
 
-        $contact_id           = absint( $_POST['monica_contact_id'] );
-        $related_contact_id   = absint( $_POST['monica_related_contact_id'] );
-        $relationship_type_id = absint( $_POST['monica_relationship_type_id'] );
+        $post_id = (int) ( $_POST['monica_post_id'] ?? 0 );
+        if ( ! current_user_can( 'edit_post', $post_id ) ) {
+            return;
+        }
+
+        $contact_id           = absint( $_POST['monica_contact_id'] ?? 0 );
+        $related_contact_id   = absint( $_POST['monica_related_contact_id'] ?? 0 );
+        $relationship_type_id = absint( $_POST['monica_relationship_type_id'] ?? 0 );
 
         if ( ! $contact_id || ! $related_contact_id || ! $relationship_type_id ) {
             return;
@@ -126,7 +145,7 @@ function monica_integration_add_relationship() {
             ] ),
         ] );
 
-        wp_redirect( $_SERVER['HTTP_REFERER'] );
+        wp_safe_redirect( wp_get_referer() ?: admin_url() );
         exit;
     }
 }
