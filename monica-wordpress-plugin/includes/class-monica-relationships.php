@@ -67,9 +67,10 @@ class Monica_Relationships {
                 <select id="monica_related_contact_id" name="monica_related_contact_id">
                     <?php
                     $contacts = get_posts( [
-                        'post_type'      => 'monica_contact',
-                        'posts_per_page' => -1,
-                        'post__not_in'   => [ $post->ID ],
+                        'post_type'               => 'monica_contact',
+                        'posts_per_page'          => -1,
+                        'post__not_in'            => [ $post->ID ],
+                        'update_post_meta_cache'  => true,
                     ] );
                     if ( ! empty( $contacts ) ) {
                         foreach ( $contacts as $contact ) {
@@ -83,6 +84,7 @@ class Monica_Relationships {
                 </select>
             </p>
             <input type="hidden" name="monica_contact_id" value="<?php echo esc_attr( $monica_contact_id ); ?>" />
+            <input type="hidden" name="monica_post_id" value="<?php echo esc_attr( $post->ID ); ?>" />
             <?php wp_nonce_field( 'monica_add_relationship', 'monica_add_relationship_nonce' ); ?>
             <input type="submit" name="monica_add_relationship" class="button" value="<?php _e( 'Add Relationship', 'monica-integration' ); ?>" />
         </form>
