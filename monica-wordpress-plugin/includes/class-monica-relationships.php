@@ -67,10 +67,11 @@ class Monica_Relationships {
                 <select id="monica_related_contact_id" name="monica_related_contact_id">
                     <?php
                     $contacts = get_posts( [
-                        'post_type'      => 'monica_contact',
-                        'posts_per_page' => -1,
-                        'post__not_in'   => [ $post->ID ],
-                        'meta_query'     => [
+                        'post_type'              => 'monica_contact',
+                        'posts_per_page'         => -1,
+                        'post__not_in'           => [ $post->ID ],
+                        'update_post_meta_cache' => true,
+                        'meta_query'             => [
                             [
                                 'key'     => '_monica_contact_id',
                                 'compare' => 'EXISTS',
@@ -80,7 +81,9 @@ class Monica_Relationships {
                     if ( ! empty( $contacts ) ) {
                         foreach ( $contacts as $contact ) {
                             $monica_id = get_post_meta( $contact->ID, '_monica_contact_id', true );
-                            echo '<option value="' . esc_attr( $monica_id ) . '">' . esc_html( $contact->post_title ) . '</option>';
+                            if ( $monica_id ) {
+                                echo '<option value="' . esc_attr( $monica_id ) . '">' . esc_html( $contact->post_title ) . '</option>';
+                            }
                         }
                     }
                     ?>
