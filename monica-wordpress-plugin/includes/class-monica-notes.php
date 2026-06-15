@@ -26,11 +26,18 @@ class Monica_Notes {
             return;
         }
 
-        $notes = $api->get( "contacts/{$monica_contact_id}/notes" );
+        $transient_key = 'monica_notes_' . $monica_contact_id;
+        $notes         = get_transient( $transient_key );
 
-        if ( is_wp_error( $notes ) ) {
-            echo '<p>' . $notes->get_error_message() . '</p>';
-            return;
+        if ( false === $notes ) {
+            $notes = $api->get( "contacts/{$monica_contact_id}/notes" );
+
+            if ( is_wp_error( $notes ) ) {
+                echo '<p>' . $notes->get_error_message() . '</p>';
+                return;
+            }
+
+            set_transient( $transient_key, $notes, 5 * MINUTE_IN_SECONDS );
         }
 
         if ( empty( $notes['data'] ) ) {

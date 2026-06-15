@@ -91,11 +91,15 @@ function monica_integration_add_note() {
         }
 
         $api = new Monica_API();
-        $api->post( "contacts/{$contact_id}/notes", [
+        $response = $api->post( "contacts/{$contact_id}/notes", [
             'body' => json_encode( [
                 'body' => $body,
             ] ),
         ] );
+
+        if ( ! is_wp_error( $response ) ) {
+            delete_transient( 'monica_notes_' . $contact_id );
+        }
 
         wp_safe_redirect( wp_get_referer() ? wp_get_referer() : admin_url() );
         exit;
