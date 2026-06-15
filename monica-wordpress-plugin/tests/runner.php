@@ -8,13 +8,37 @@ foreach ($test_files as $file) {
     require_once $file;
 }
 
+$passed = 0;
+$failed = 0;
+
+// Run class methods first
+foreach (get_declared_classes() as $class) {
+    if (strpos($class, 'Test_') === 0) {
+        $test_obj = new $class();
+        $methods = get_class_methods($test_obj);
+        foreach ($methods as $method) {
+            if (strpos($method, 'test_') === 0) {
+                reset_mock_calls();
+                $_POST = [];
+                try {
+                    $test_obj->$method();
+                    echo "✅ {$class}::{$method}\n";
+                    $passed++;
+                } catch (Exception $e) {
+                    echo "❌ {$class}::{$method}\n";
+                    echo "   " . $e->getMessage() . "\n";
+                    $failed++;
+                }
+            }
+        }
+    }
+}
+
+// Run functions
 $functions = get_defined_functions()['user'];
 $test_functions = array_filter($functions, function($fn) {
     return strpos($fn, 'test_') === 0;
 });
-
-$passed = 0;
-$failed = 0;
 
 foreach ($test_functions as $test) {
     if ($test === 'test_save_contact_meta_data_autosave') {
