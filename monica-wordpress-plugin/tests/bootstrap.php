@@ -8,11 +8,13 @@ function reset_mock_calls() {
     $mock_calls = [
         'update_post_meta' => [],
         'get_post_meta' => [],
+        'Monica_API_get' => [],
         'Monica_API_post' => [],
         'Monica_API_put' => [],
         'wp_verify_nonce' => true,
         'current_user_can' => true,
         'get_post_meta_return' => null,
+        'Monica_API_get_return' => ['data' => []],
         'Monica_API_post_return' => ['data' => ['id' => 999]],
         'is_wp_error_return' => false,
     ];
@@ -28,6 +30,19 @@ function add_meta_box() {}
 function wp_nonce_field() {}
 function _e($a, $b) {}
 function esc_attr($a) { return $a; }
+function esc_html($a) { return $a; }
+function wpautop($text) { return "<p>" . str_replace("
+", "</p><p>", $text) . "</p>"; }
+
+class WP_Error {
+    private $message;
+    public function __construct($message = '') {
+        $this->message = $message;
+    }
+    public function get_error_message() {
+        return $this->message;
+    }
+}
 
 function wp_verify_nonce($nonce, $action) {
     global $mock_calls;
@@ -62,6 +77,12 @@ function is_wp_error($thing) {
 }
 
 class Monica_API {
+    public function get($endpoint, $args = []) {
+        global $mock_calls;
+        $mock_calls['Monica_API_get'][] = func_get_args();
+        return $mock_calls['Monica_API_get_return'];
+    }
+
     public function post($endpoint, $args = []) {
         global $mock_calls;
         $mock_calls['Monica_API_post'][] = func_get_args();
