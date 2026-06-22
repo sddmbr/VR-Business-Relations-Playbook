@@ -8,8 +8,8 @@ function test_save_contact_meta_data_missing_nonce() {
     $contacts->save_contact_meta_data(1);
 
     assert_empty($mock_calls['update_post_meta'], 'Meta should not be updated');
-    assert_empty($mock_calls['Monica_API_post'], 'API post should not be called');
-    assert_empty($mock_calls['Monica_API_put'], 'API put should not be called');
+    assert_empty($mock_calls['wp_remote_post'], 'API post should not be called');
+    assert_empty($mock_calls['wp_remote_request'], 'API put should not be called');
 }
 
 function test_save_contact_meta_data_invalid_nonce() {
@@ -22,8 +22,8 @@ function test_save_contact_meta_data_invalid_nonce() {
     $contacts->save_contact_meta_data(1);
 
     assert_empty($mock_calls['update_post_meta'], 'Meta should not be updated');
-    assert_empty($mock_calls['Monica_API_post'], 'API post should not be called');
-    assert_empty($mock_calls['Monica_API_put'], 'API put should not be called');
+    assert_empty($mock_calls['wp_remote_post'], 'API post should not be called');
+    assert_empty($mock_calls['wp_remote_request'], 'API put should not be called');
 }
 
 function test_save_contact_meta_data_autosave() {
@@ -36,8 +36,8 @@ function test_save_contact_meta_data_autosave() {
     $contacts->save_contact_meta_data(1);
 
     assert_empty($mock_calls['update_post_meta'], 'Meta should not be updated');
-    assert_empty($mock_calls['Monica_API_post'], 'API post should not be called');
-    assert_empty($mock_calls['Monica_API_put'], 'API put should not be called');
+    assert_empty($mock_calls['wp_remote_post'], 'API post should not be called');
+    assert_empty($mock_calls['wp_remote_request'], 'API put should not be called');
 }
 
 function test_save_contact_meta_data_no_capability() {
@@ -51,8 +51,8 @@ function test_save_contact_meta_data_no_capability() {
     $contacts->save_contact_meta_data(1);
 
     assert_empty($mock_calls['update_post_meta'], 'Meta should not be updated');
-    assert_empty($mock_calls['Monica_API_post'], 'API post should not be called');
-    assert_empty($mock_calls['Monica_API_put'], 'API put should not be called');
+    assert_empty($mock_calls['wp_remote_post'], 'API post should not be called');
+    assert_empty($mock_calls['wp_remote_request'], 'API put should not be called');
 }
 
 function test_save_contact_meta_data_create_new() {
@@ -68,7 +68,7 @@ function test_save_contact_meta_data_create_new() {
     $mock_calls['wp_verify_nonce'] = true;
     $mock_calls['current_user_can'] = true;
     $mock_calls['get_post_meta_return'] = false; // No existing Monica ID
-    $mock_calls['Monica_API_post_return'] = ['data' => ['id' => 12345]];
+    $mock_calls['wp_remote_post_return'] = ['body' => json_encode(['data' => ['id' => 12345]])];
 
     $contacts->save_contact_meta_data(1);
 
@@ -79,9 +79,9 @@ function test_save_contact_meta_data_create_new() {
     assert_equals('_monica_contact_id', $mock_calls['update_post_meta'][3][1]);
     assert_equals(12345, $mock_calls['update_post_meta'][3][2]);
 
-    assert_not_empty($mock_calls['Monica_API_post'], 'API post should be called');
-    assert_empty($mock_calls['Monica_API_put'], 'API put should not be called');
-    assert_equals('contacts', $mock_calls['Monica_API_post'][0][0]);
+    assert_not_empty($mock_calls['wp_remote_post'], 'API post should be called');
+    assert_empty($mock_calls['wp_remote_request'], 'API put should not be called');
+    assert_equals('https://app.monicahq.com/api/contacts', $mock_calls['wp_remote_post'][0][0]);
 }
 
 function test_save_contact_meta_data_update_existing() {
@@ -105,9 +105,9 @@ function test_save_contact_meta_data_update_existing() {
     assert_equals('_monica_first_name', $mock_calls['update_post_meta'][0][1]);
     assert_equals('Jane', $mock_calls['update_post_meta'][0][2]);
 
-    assert_empty($mock_calls['Monica_API_post'], 'API post should not be called');
-    assert_not_empty($mock_calls['Monica_API_put'], 'API put should be called');
-    assert_equals('contacts/67890', $mock_calls['Monica_API_put'][0][0]);
+    assert_empty($mock_calls['wp_remote_post'], 'API post should not be called');
+    assert_not_empty($mock_calls['wp_remote_request'], 'API put should be called');
+    assert_equals('https://app.monicahq.com/api/contacts/67890', $mock_calls['wp_remote_request'][0][0]);
 }
 
 function test_save_contact_meta_data_create_new_api_error() {
@@ -134,6 +134,6 @@ function test_save_contact_meta_data_create_new_api_error() {
     assert_equals('_monica_first_name', $mock_calls['update_post_meta'][0][1]);
     assert_equals('John', $mock_calls['update_post_meta'][0][2]);
 
-    assert_not_empty($mock_calls['Monica_API_post'], 'API post should be called');
-    assert_empty($mock_calls['Monica_API_put'], 'API put should not be called');
+    assert_not_empty($mock_calls['wp_remote_post'], 'API post should be called');
+    assert_empty($mock_calls['wp_remote_request'], 'API put should not be called');
 }
