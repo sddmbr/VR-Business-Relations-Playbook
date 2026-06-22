@@ -4,6 +4,28 @@ class Monica_Relationships {
 
     public function __construct() {
         add_action( 'add_meta_boxes', [ $this, 'add_relationships_meta_box' ] );
+        add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
+    }
+
+    public function enqueue_scripts( $hook ) {
+        global $post;
+        if ( $hook !== 'post.php' && $hook !== 'post-new.php' ) {
+            return;
+        }
+        if ( ! $post || $post->post_type !== 'monica_contact' ) {
+            return;
+        }
+
+        wp_enqueue_script( 'jquery-ui-autocomplete' );
+        wp_enqueue_script( 'monica-relationships-js', plugin_dir_url( __FILE__ ) . '../assets/js/monica-relationships.js', [ 'jquery', 'jquery-ui-autocomplete' ], '1.0.0', true );
+        wp_localize_script( 'monica-relationships-js', 'monicaRelationshipsVars', [
+            'ajaxUrl'  => admin_url( 'admin-ajax.php' ),
+            'nonce'    => wp_create_nonce( 'monica_search_contacts' ),
+            'postId'   => $post->ID,
+        ] );
+
+        // Add inline style to ensure UI autocomplete shows above WordPress UI
+        wp_add_inline_style( 'wp-admin', '.ui-autocomplete { z-index: 10001 !important; }' );
     }
 
     public function add_relationships_meta_box() {
@@ -63,28 +85,9 @@ class Monica_Relationships {
                 </select>
             </p>
             <p>
-                <label for="monica_related_contact_id"><?php _e( 'Contact', 'monica-integration' ); ?></label>
-                <select id="monica_related_contact_id" name="monica_related_contact_id">
-                    <?php
-                    $contacts = get_posts( [
-                        'post_type'      => 'monica_contact',
-                        'posts_per_page' => -1,
-                        'post__not_in'   => [ $post->ID ],
-                        'meta_query'     => [
-                            [
-                                'key'     => '_monica_contact_id',
-                                'compare' => 'EXISTS',
-                            ],
-                        ],
-                    ] );
-                    if ( ! empty( $contacts ) ) {
-                        foreach ( $contacts as $contact ) {
-                            $monica_id = get_post_meta( $contact->ID, '_monica_contact_id', true );
-                            echo '<option value="' . esc_attr( $monica_id ) . '">' . esc_html( $contact->post_title ) . '</option>';
-                        }
-                    }
-                    ?>
-                </select>
+                <label for="monica_related_contact_search"><?php _e( 'Contact', 'monica-integration' ); ?></label>
+                <input type="text" id="monica_related_contact_search" name="monica_related_contact_search" value="" placeholder="<?php esc_attr_e( 'Search contacts...', 'monica-integration' ); ?>" autocomplete="off" />
+                <input type="hidden" id="monica_related_contact_id" name="monica_related_contact_id" value="" />
             </p>
             <input type="hidden" name="monica_contact_id" value="<?php echo esc_attr( $monica_contact_id ); ?>" />
             <?php wp_nonce_field( 'monica_add_relationship', 'monica_add_relationship_nonce' ); ?>

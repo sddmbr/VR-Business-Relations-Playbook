@@ -131,3 +131,53 @@ function monica_integration_add_relationship() {
     }
 }
 add_action( 'admin_init', 'monica_integration_add_relationship' );
+
+function monica_integration_search_contacts() {
+    check_ajax_referer( 'monica_search_contacts', 'nonce' );
+
+    if ( ! current_user_can( 'edit_posts' ) ) {
+        wp_send_json_error( __( 'Insufficient permissions', 'monica-integration' ) );
+        return;
+    }
+
+    $search_term = isset( $_GET['term'] ) ? sanitize_text_field( $_GET['term'] ) : '';
+    $post_id     = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0;
+
+    if ( empty( $search_term ) ) {
+        wp_send_json_success( [] );
+        return;
+    }
+
+    $args = [
+        'post_type'      => 'monica_contact',
+        'posts_per_page' => 20,
+        's'              => $search_term,
+        'meta_query'     => [
+            [
+                'key'     => '_monica_contact_id',
+                'compare' => 'EXISTS',
+            ],
+        ],
+    ];
+
+    if ( $post_id ) {
+        $args['post__not_in'] = [ $post_id ];
+    }
+
+    $contacts = get_posts( $args );
+    $results  = [];
+
+    foreach ( $contacts as $contact ) {
+        $monica_id = get_post_meta( $contact->ID, '_monica_contact_id', true );
+        if ( $monica_id ) {
+            $results[] = [
+                'id'    => $monica_id,
+                'label' => $contact->post_title,
+                'value' => $contact->post_title,
+            ];
+        }
+    }
+
+    wp_send_json( $results );
+}
+add_action( 'wp_ajax_monica_search_contacts', 'monica_integration_search_contacts' );
