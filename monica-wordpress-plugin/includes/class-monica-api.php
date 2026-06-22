@@ -3,7 +3,11 @@
 class Monica_API {
 
     private $api_url = 'https://app.monicahq.com/api/';
+    private $access_token;
 
+    public function __construct() {
+        $this->access_token = get_option( 'monica_access_token' );
+    }
 
     public function get_authorization_url( $redirect_uri ) {
         $params = [
@@ -39,14 +43,12 @@ class Monica_API {
     }
 
     public function get( $endpoint, $args = [] ) {
-        $access_token = get_option( 'monica_access_token' );
-
-        if ( ! $access_token ) {
+        if ( ! $this->access_token ) {
             return new WP_Error( 'no_access_token', __( 'No access token found.', 'monica-integration' ) );
         }
 
         $args['headers'] = [
-            'Authorization' => 'Bearer ' . $access_token,
+            'Authorization' => 'Bearer ' . $this->access_token,
         ];
 
         $response = wp_remote_get( $this->api_url . $endpoint, $args );
@@ -62,14 +64,12 @@ class Monica_API {
     }
 
     public function post( $endpoint, $args = [] ) {
-        $access_token = get_option( 'monica_access_token' );
-
-        if ( ! $access_token ) {
+        if ( ! $this->access_token ) {
             return new WP_Error( 'no_access_token', __( 'No access token found.', 'monica-integration' ) );
         }
 
         $args['headers'] = [
-            'Authorization' => 'Bearer ' . $access_token,
+            'Authorization' => 'Bearer ' . $this->access_token,
             'Content-Type'  => 'application/json',
         ];
 
@@ -86,15 +86,13 @@ class Monica_API {
     }
 
     public function put( $endpoint, $args = [] ) {
-        $access_token = get_option( 'monica_access_token' );
-
-        if ( ! $access_token ) {
+        if ( ! $this->access_token ) {
             return new WP_Error( 'no_access_token', __( 'No access token found.', 'monica-integration' ) );
         }
 
         $args['method']  = 'PUT';
         $args['headers'] = [
-            'Authorization' => 'Bearer ' . $access_token,
+            'Authorization' => 'Bearer ' . $this->access_token,
             'Content-Type'  => 'application/json',
         ];
 
