@@ -5,6 +5,26 @@ class Monica_Settings {
     public function __construct() {
         add_action( 'admin_menu', [ $this, 'add_settings_page' ] );
         add_action( 'admin_init', [ $this, 'register_settings' ] );
+        add_action( 'admin_init', [ $this, 'handle_oauth_redirect' ] );
+    }
+
+    public function handle_oauth_redirect() {
+        if ( isset( $_GET['page'] ) && 'monica-integration' === $_GET['page'] && isset( $_GET['code'] ) ) {
+            if ( ! current_user_can( 'manage_options' ) ) {
+                return;
+            }
+
+            $api = new Monica_API();
+            $redirect_uri = admin_url( 'options-general.php?page=monica-integration' );
+            $data = $api->get_access_token( $_GET['code'], $redirect_uri );
+
+            if ( isset( $data['access_token'] ) ) {
+                update_option( 'monica_access_token', $data['access_token'] );
+            }
+
+            wp_safe_redirect( $redirect_uri );
+            exit;
+        }
     }
 
     public function add_settings_page() {
