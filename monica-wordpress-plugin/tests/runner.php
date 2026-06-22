@@ -1,58 +1,68 @@
 <?php
 
 require_once __DIR__ . '/bootstrap.php';
-require_once __DIR__ . '/../includes/class-monica-contacts.php';
 
-$test_files = glob(__DIR__ . '/test-*.php');
-foreach ($test_files as $file) {
-    require_once $file;
-}
+class TestRunner {
+    protected $passed = 0;
+    protected $failed = 0;
+    protected $errors = [];
 
-$functions = get_defined_functions()['user'];
-$test_functions = array_filter($functions, function($fn) {
-    return strpos($fn, 'test_') === 0;
-});
+    public function run( $testFile ) {
+        echo "Running tests in $testFile...\n";
+        require_once $testFile;
 
-$passed = 0;
-$failed = 0;
+        $className = str_replace( '.php', '', basename( $testFile ) );
+        $className = str_replace( '-', '_', $className );
+        // Basic conversion from test-class-monica-api.php to Test_Class_Monica_API
+        $className = implode( '_', array_map( 'ucfirst', explode( '_', $className ) ) );
 
-foreach ($test_functions as $test) {
-    if ($test === 'test_save_contact_meta_data_autosave') {
-        continue;
+        if ( ! class_exists( $className ) ) {
+            echo "Error: Class $className not found in $testFile\n";
+            return;
+        }
+
+        $testClass = new $className();
+        $methods = get_class_methods( $testClass );
+
+        foreach ( $methods as $method ) {
+            if ( strpos( $method, 'test_' ) === 0 ) {
+                echo "  Running $method...";
+                try {
+                    // Reset global state before each test if needed
+                    $GLOBALS['wp_options'] = [];
+
+                    $testClass->$method();
+                    echo " PASSED\n";
+                    $this->passed++;
+                } catch ( Exception $e ) {
+                    echo " FAILED\n";
+                    echo "    " . $e->getMessage() . "\n";
+                    $this->failed++;
+                }
+            }
+        }
     }
 
-    reset_mock_calls();
-    $_POST = [];
+    public function report() {
+        echo "\nSummary:\n";
+        echo "  Passed: {$this->passed}\n";
+        echo "  Failed: {$this->failed}\n";
 
-    try {
-        $test();
-        echo "✅ $test\n";
-        $passed++;
-    } catch (Exception $e) {
-        echo "❌ $test\n";
-        echo "   " . $e->getMessage() . "\n";
-        $failed++;
+        if ( $this->failed > 0 ) {
+            exit( 1 );
+        }
     }
 }
 
-if (in_array('test_save_contact_meta_data_autosave', $test_functions)) {
-    if (!defined('DOING_AUTOSAVE')) {
-        define('DOING_AUTOSAVE', true);
-    }
-    reset_mock_calls();
-    $_POST = [];
-    try {
-        test_save_contact_meta_data_autosave();
-        echo "✅ test_save_contact_meta_data_autosave\n";
-        $passed++;
-    } catch (Exception $e) {
-        echo "❌ test_save_contact_meta_data_autosave\n";
-        echo "   " . $e->getMessage() . "\n";
-        $failed++;
+function assertEquals( $expected, $actual, $message = '' ) {
+    if ( $expected !== $actual ) {
+        throw new Exception( "Expected: $expected, Actual: $actual. $message" );
     }
 }
 
-echo "\nTests completed. Passed: $passed, Failed: $failed\n";
-if ($failed > 0) {
-    exit(1);
+$runner = new TestRunner();
+$testFiles = glob( __DIR__ . '/test-*.php' );
+foreach ( $testFiles as $file ) {
+    $runner->run( $file );
 }
+$runner->report();
