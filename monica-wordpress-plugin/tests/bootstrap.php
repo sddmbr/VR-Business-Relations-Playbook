@@ -6,10 +6,16 @@ $mock_calls = [];
 function reset_mock_calls() {
     global $mock_calls;
     $mock_calls = [
+        'add_action' => [],
+        'add_meta_box' => [],
         'update_post_meta' => [],
         'get_post_meta' => [],
+        'Monica_API_get' => [],
         'Monica_API_post' => [],
         'Monica_API_put' => [],
+        'Monica_API_get_return_map' => [],
+        'get_posts' => [],
+        'get_posts_return' => [],
         'wp_verify_nonce' => true,
         'current_user_can' => true,
         'get_post_meta_return' => null,
@@ -20,14 +26,37 @@ function reset_mock_calls() {
 reset_mock_calls();
 
 // Mock WordPress functions
-function add_action() {}
+function add_action() {
+    global $mock_calls;
+    $mock_calls['add_action'][] = func_get_args();
+}
 function _x($a, $b, $c) { return $a; }
 function __($a, $b) { return $a; }
 function register_post_type($a, $b) {}
-function add_meta_box() {}
-function wp_nonce_field() {}
-function _e($a, $b) {}
+function add_meta_box() {
+    global $mock_calls;
+    $mock_calls['add_meta_box'][] = func_get_args();
+}
+function wp_nonce_field($action = -1, $name = '_wpnonce', $referer = true, $echo = true) {
+    $nonce = '<input type="hidden" name="' . esc_attr($name) . '" value="12345" />';
+    if ($echo) {
+        echo $nonce;
+    }
+    return $nonce;
+}
+function _e($a, $b) { echo $a; }
 function esc_attr($a) { return $a; }
+function esc_html($a) { return $a; }
+function get_posts($args) {
+    global $mock_calls;
+    $mock_calls['get_posts'][] = func_get_args();
+    return $mock_calls['get_posts_return'] ?? [];
+}
+class WP_Error {
+    public function get_error_message() {
+        return 'Mock API Error';
+    }
+}
 
 function wp_verify_nonce($nonce, $action) {
     global $mock_calls;
@@ -58,10 +87,22 @@ function get_post_meta($post_id, $key, $single = false) {
 
 function is_wp_error($thing) {
     global $mock_calls;
+    if (is_object($thing) && is_a($thing, 'WP_Error')) {
+        return true;
+    }
     return $mock_calls['is_wp_error_return'];
 }
 
 class Monica_API {
+    public function get($endpoint, $args = []) {
+        global $mock_calls;
+        $mock_calls['Monica_API_get'][] = func_get_args();
+        if (isset($mock_calls['Monica_API_get_return_map'][$endpoint])) {
+            return $mock_calls['Monica_API_get_return_map'][$endpoint];
+        }
+        return ['data' => []];
+    }
+
     public function post($endpoint, $args = []) {
         global $mock_calls;
         $mock_calls['Monica_API_post'][] = func_get_args();
