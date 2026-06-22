@@ -34,6 +34,10 @@ function monica_integration_init() {
 add_action( 'plugins_loaded', 'monica_integration_init' );
 
 function monica_integration_oauth_redirect() {
+    if ( ! current_user_can( 'manage_options' ) ) {
+        return;
+    }
+
     if ( isset( $_GET['page'] ) && 'monica-integration' === $_GET['page'] && isset( $_GET['code'] ) ) {
         $api = new Monica_API();
         $redirect_uri = admin_url( 'options-general.php?page=monica-integration' );
