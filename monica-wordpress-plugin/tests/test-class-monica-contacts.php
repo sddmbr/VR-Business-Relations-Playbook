@@ -110,6 +110,46 @@ function test_save_contact_meta_data_update_existing() {
     assert_equals('contacts/67890', $mock_calls['Monica_API_put'][0][0]);
 }
 
+function test_render_contact_details_meta_box_empty() {
+    $contacts = new Monica_Contacts();
+    global $mock_calls;
+
+    $post = new stdClass();
+    $post->ID = 1;
+
+    ob_start();
+    $contacts->render_contact_details_meta_box($post);
+    $html = ob_get_clean();
+
+    assert_true(strpos($html, 'name="monica_contact_details_nonce"') !== false, 'Should contain nonce field');
+    assert_true(strpos($html, 'name="monica_first_name" value=""') !== false, 'First name should be empty');
+    assert_true(strpos($html, 'name="monica_last_name" value=""') !== false, 'Last name should be empty');
+    assert_true(strpos($html, 'name="monica_email" value=""') !== false, 'Email should be empty');
+}
+
+function test_render_contact_details_meta_box_with_data() {
+    $contacts = new Monica_Contacts();
+    global $mock_calls;
+
+    $mock_calls['get_post_meta_returns'] = [
+        '_monica_first_name' => 'Alice',
+        '_monica_last_name' => 'Wonderland',
+        '_monica_email' => 'alice@example.com'
+    ];
+
+    $post = new stdClass();
+    $post->ID = 1;
+
+    ob_start();
+    $contacts->render_contact_details_meta_box($post);
+    $html = ob_get_clean();
+
+    assert_true(strpos($html, 'name="monica_contact_details_nonce"') !== false, 'Should contain nonce field');
+    assert_true(strpos($html, 'name="monica_first_name" value="Alice"') !== false, 'First name should be populated');
+    assert_true(strpos($html, 'name="monica_last_name" value="Wonderland"') !== false, 'Last name should be populated');
+    assert_true(strpos($html, 'name="monica_email" value="alice@example.com"') !== false, 'Email should be populated');
+}
+
 function test_save_contact_meta_data_create_new_api_error() {
     $contacts = new Monica_Contacts();
     global $mock_calls;
