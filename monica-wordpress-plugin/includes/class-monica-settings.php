@@ -44,7 +44,7 @@ class Monica_Settings {
                 <?php submit_button(); ?>
             </form>
             <?php
-            $api = new Monica_API();
+            $api = Monica_API::get_instance();
             $redirect_uri = admin_url( 'options-general.php?page=monica-integration' );
             ?>
             <a href="<?php echo esc_url( $api->get_authorization_url( $redirect_uri ) ); ?>" class="button button-primary"><?php _e( 'Authorize with Monica', 'monica-integration' ); ?></a>
