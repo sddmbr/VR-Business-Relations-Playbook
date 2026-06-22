@@ -53,7 +53,13 @@ class Monica_Relationships {
                 <label for="monica_relationship_type_id"><?php _e( 'Relationship Type', 'monica-integration' ); ?></label>
                 <select id="monica_relationship_type_id" name="monica_relationship_type_id">
                     <?php
-                    $relationship_types = $api->get( 'relationshiptypes' );
+                    $relationship_types = get_transient( 'monica_relationship_types' );
+                    if ( false === $relationship_types ) {
+                        $relationship_types = $api->get( 'relationshiptypes' );
+                        if ( ! is_wp_error( $relationship_types ) && ! empty( $relationship_types['data'] ) ) {
+                            set_transient( 'monica_relationship_types', $relationship_types, DAY_IN_SECONDS );
+                        }
+                    }
                     if ( ! is_wp_error( $relationship_types ) && ! empty( $relationship_types['data'] ) ) {
                         foreach ( $relationship_types['data'] as $relationship_type ) {
                             echo '<option value="' . esc_attr( $relationship_type['id'] ) . '">' . esc_html( $relationship_type['name'] ) . '</option>';
@@ -70,17 +76,13 @@ class Monica_Relationships {
                         'post_type'      => 'monica_contact',
                         'posts_per_page' => -1,
                         'post__not_in'   => [ $post->ID ],
-                        'meta_query'     => [
-                            [
-                                'key'     => '_monica_contact_id',
-                                'compare' => 'EXISTS',
-                            ],
-                        ],
                     ] );
                     if ( ! empty( $contacts ) ) {
                         foreach ( $contacts as $contact ) {
                             $monica_id = get_post_meta( $contact->ID, '_monica_contact_id', true );
-                            echo '<option value="' . esc_attr( $monica_id ) . '">' . esc_html( $contact->post_title ) . '</option>';
+                            if ( $monica_id ) {
+                                echo '<option value="' . esc_attr( $monica_id ) . '">' . esc_html( $contact->post_title ) . '</option>';
+                            }
                         }
                     }
                     ?>
