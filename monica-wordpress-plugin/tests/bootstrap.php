@@ -10,10 +10,12 @@ function reset_mock_calls() {
         'get_post_meta' => [],
         'Monica_API_post' => [],
         'Monica_API_put' => [],
+        'Monica_API_get' => [],
         'wp_verify_nonce' => true,
         'current_user_can' => true,
         'get_post_meta_return' => null,
         'Monica_API_post_return' => ['data' => ['id' => 999]],
+        'Monica_API_get_return' => ['data' => []],
         'is_wp_error_return' => false,
     ];
 }
@@ -61,7 +63,29 @@ function is_wp_error($thing) {
     return $mock_calls['is_wp_error_return'];
 }
 
+class WP_Error {
+    private $code;
+    private $message;
+    private $data;
+
+    public function __construct($code = '', $message = '', $data = '') {
+        $this->code = $code;
+        $this->message = $message;
+        $this->data = $data;
+    }
+
+    public function get_error_message() {
+        return $this->message;
+    }
+}
+
 class Monica_API {
+    public function get($endpoint, $args = []) {
+        global $mock_calls;
+        $mock_calls['Monica_API_get'][] = func_get_args();
+        return $mock_calls['Monica_API_get_return'];
+    }
+
     public function post($endpoint, $args = []) {
         global $mock_calls;
         $mock_calls['Monica_API_post'][] = func_get_args();

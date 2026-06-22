@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/../includes/class-monica-contacts.php';
+require_once __DIR__ . '/../includes/class-monica-notes.php';
 
 $test_files = glob(__DIR__ . '/test-*.php');
 foreach ($test_files as $file) {
