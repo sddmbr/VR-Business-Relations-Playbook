@@ -28,10 +28,6 @@ class Monica_API {
             'body' => $params,
         ] );
 
-        if ( is_wp_error( $response ) ) {
-            return $response;
-        }
-
         $body = wp_remote_retrieve_body( $response );
         $data = json_decode( $body, true );
 
@@ -50,10 +46,6 @@ class Monica_API {
         ];
 
         $response = wp_remote_get( $this->api_url . $endpoint, $args );
-
-        if ( is_wp_error( $response ) ) {
-            return $response;
-        }
 
         $body = wp_remote_retrieve_body( $response );
         $data = json_decode( $body, true );
@@ -75,10 +67,6 @@ class Monica_API {
 
         $response = wp_remote_post( $this->api_url . $endpoint, $args );
 
-        if ( is_wp_error( $response ) ) {
-            return $response;
-        }
-
         $body = wp_remote_retrieve_body( $response );
         $data = json_decode( $body, true );
 
@@ -99,10 +87,6 @@ class Monica_API {
         ];
 
         $response = wp_remote_request( $this->api_url . $endpoint, $args );
-
-        if ( is_wp_error( $response ) ) {
-            return $response;
-        }
 
         $body = wp_remote_retrieve_body( $response );
         $data = json_decode( $body, true );
