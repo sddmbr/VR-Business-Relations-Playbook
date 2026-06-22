@@ -18,7 +18,7 @@ class Monica_Notes {
     }
 
     public function render_notes_meta_box( $post ) {
-        $api = new Monica_API();
+        $api = Monica_API::get_instance();
         $monica_contact_id = get_post_meta( $post->ID, '_monica_contact_id', true );
 
         if ( ! $monica_contact_id ) {

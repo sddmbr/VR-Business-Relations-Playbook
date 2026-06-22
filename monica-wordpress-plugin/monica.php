@@ -35,7 +35,7 @@ add_action( 'plugins_loaded', 'monica_integration_init' );
 
 function monica_integration_oauth_redirect() {
     if ( isset( $_GET['page'] ) && 'monica-integration' === $_GET['page'] && isset( $_GET['code'] ) ) {
-        $api = new Monica_API();
+        $api = Monica_API::get_instance();
         $redirect_uri = admin_url( 'options-general.php?page=monica-integration' );
         $data = $api->get_access_token( $_GET['code'], $redirect_uri );
 
@@ -43,7 +43,7 @@ function monica_integration_oauth_redirect() {
             update_option( 'monica_access_token', $data['access_token'] );
         }
 
-        wp_safe_redirect( $redirect_uri );
+        wp_redirect( $redirect_uri );
         exit;
     }
 }
@@ -55,15 +55,15 @@ function monica_integration_add_reminder() {
             return;
         }
 
-        $contact_id = absint( $_POST['monica_contact_id'] ?? 0 );
-        $title      = sanitize_text_field( $_POST['monica_reminder_title'] ?? '' );
-        $date       = sanitize_text_field( $_POST['monica_reminder_date'] ?? '' );
+        $contact_id = absint( $_POST['monica_contact_id'] );
+        $title      = sanitize_text_field( $_POST['monica_reminder_title'] );
+        $date       = sanitize_text_field( $_POST['monica_reminder_date'] );
 
         if ( ! $contact_id || ! $title || ! $date ) {
             return;
         }
 
-        $api = new Monica_API();
+        $api = Monica_API::get_instance();
         $api->post( "contacts/{$contact_id}/reminders", [
             'body' => json_encode( [
                 'title'          => $title,
@@ -71,7 +71,7 @@ function monica_integration_add_reminder() {
             ] ),
         ] );
 
-        wp_safe_redirect( wp_get_referer() ? wp_get_referer() : admin_url() );
+        wp_redirect( $_SERVER['HTTP_REFERER'] );
         exit;
     }
 }
@@ -83,21 +83,21 @@ function monica_integration_add_note() {
             return;
         }
 
-        $contact_id = absint( $_POST['monica_contact_id'] ?? 0 );
-        $body       = wp_kses_post( $_POST['monica_note_body'] ?? '' );
+        $contact_id = absint( $_POST['monica_contact_id'] );
+        $body       = wp_kses_post( $_POST['monica_note_body'] );
 
         if ( ! $contact_id || ! $body ) {
             return;
         }
 
-        $api = new Monica_API();
+        $api = Monica_API::get_instance();
         $api->post( "contacts/{$contact_id}/notes", [
             'body' => json_encode( [
                 'body' => $body,
             ] ),
         ] );
 
-        wp_safe_redirect( wp_get_referer() ? wp_get_referer() : admin_url() );
+        wp_redirect( $_SERVER['HTTP_REFERER'] );
         exit;
     }
 }
@@ -109,15 +109,15 @@ function monica_integration_add_relationship() {
             return;
         }
 
-        $contact_id           = absint( $_POST['monica_contact_id'] ?? 0 );
-        $related_contact_id   = absint( $_POST['monica_related_contact_id'] ?? 0 );
-        $relationship_type_id = absint( $_POST['monica_relationship_type_id'] ?? 0 );
+        $contact_id           = absint( $_POST['monica_contact_id'] );
+        $related_contact_id   = absint( $_POST['monica_related_contact_id'] );
+        $relationship_type_id = absint( $_POST['monica_relationship_type_id'] );
 
         if ( ! $contact_id || ! $related_contact_id || ! $relationship_type_id ) {
             return;
         }
 
-        $api = new Monica_API();
+        $api = Monica_API::get_instance();
         $api->post( 'relationships', [
             'body' => json_encode( [
                 'contact_id'           => $contact_id,
@@ -126,7 +126,7 @@ function monica_integration_add_relationship() {
             ] ),
         ] );
 
-        wp_safe_redirect( wp_get_referer() ? wp_get_referer() : admin_url() );
+        wp_redirect( $_SERVER['HTTP_REFERER'] );
         exit;
     }
 }
