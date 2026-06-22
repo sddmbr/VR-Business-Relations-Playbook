@@ -35,6 +35,11 @@ add_action( 'plugins_loaded', 'monica_integration_init' );
 
 function monica_integration_oauth_redirect() {
     if ( isset( $_GET['page'] ) && 'monica-integration' === $_GET['page'] && isset( $_GET['code'] ) ) {
+        if ( ! isset( $_GET['state'] ) || ! wp_verify_nonce( $_GET['state'], 'monica_oauth_state' ) ) {
+            wp_safe_redirect( admin_url( 'options-general.php?page=monica-integration&monica_error=invalid_state' ) );
+            exit;
+        }
+
         $api = new Monica_API();
         $redirect_uri = admin_url( 'options-general.php?page=monica-integration' );
         $data = $api->get_access_token( $_GET['code'], $redirect_uri );
@@ -48,6 +53,17 @@ function monica_integration_oauth_redirect() {
     }
 }
 add_action( 'admin_init', 'monica_integration_oauth_redirect' );
+
+function monica_integration_admin_notices() {
+    if ( isset( $_GET['monica_error'] ) && 'invalid_state' === $_GET['monica_error'] ) {
+        ?>
+        <div class="notice notice-error is-dismissible">
+            <p><?php _e( 'OAuth authorization failed: Invalid state parameter. Possible CSRF attack.', 'monica-integration' ); ?></p>
+        </div>
+        <?php
+    }
+}
+add_action( 'admin_notices', 'monica_integration_admin_notices' );
 
 function monica_integration_add_reminder() {
     if ( isset( $_POST['monica_add_reminder'] ) && isset( $_POST['monica_add_reminder_nonce'] ) ) {
