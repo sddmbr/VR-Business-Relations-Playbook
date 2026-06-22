@@ -15,6 +15,7 @@ function reset_mock_calls() {
         'get_post_meta_return' => null,
         'Monica_API_post_return' => ['data' => ['id' => 999]],
         'is_wp_error_return' => false,
+        'register_setting' => [],
     ];
 }
 reset_mock_calls();
@@ -100,4 +101,9 @@ function assert_not_empty($actual, $message = '') {
     if (empty($actual)) {
         throw new Exception("Assertion failed: Expected not empty. $message");
     }
+}
+
+function register_setting($option_group, $option_name, $args = []) {
+    global $mock_calls;
+    $mock_calls['register_setting'][] = func_get_args();
 }
