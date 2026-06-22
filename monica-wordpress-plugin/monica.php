@@ -60,7 +60,8 @@ function monica_integration_add_reminder() {
         $date       = sanitize_text_field( $_POST['monica_reminder_date'] ?? '' );
 
         if ( ! $contact_id || ! $title || ! $date ) {
-            return;
+            wp_safe_redirect( add_query_arg( 'monica_error', 'empty_fields', wp_get_referer() ? wp_get_referer() : admin_url() ) );
+            exit;
         }
 
         $api = new Monica_API();
@@ -87,7 +88,8 @@ function monica_integration_add_note() {
         $body       = wp_kses_post( $_POST['monica_note_body'] ?? '' );
 
         if ( ! $contact_id || ! $body ) {
-            return;
+            wp_safe_redirect( add_query_arg( 'monica_error', 'empty_fields', wp_get_referer() ? wp_get_referer() : admin_url() ) );
+            exit;
         }
 
         $api = new Monica_API();
@@ -114,7 +116,8 @@ function monica_integration_add_relationship() {
         $relationship_type_id = absint( $_POST['monica_relationship_type_id'] ?? 0 );
 
         if ( ! $contact_id || ! $related_contact_id || ! $relationship_type_id ) {
-            return;
+            wp_safe_redirect( add_query_arg( 'monica_error', 'empty_fields', wp_get_referer() ? wp_get_referer() : admin_url() ) );
+            exit;
         }
 
         $api = new Monica_API();
@@ -131,3 +134,14 @@ function monica_integration_add_relationship() {
     }
 }
 add_action( 'admin_init', 'monica_integration_add_relationship' );
+
+function monica_integration_admin_notices() {
+    if ( isset( $_GET['monica_error'] ) && 'empty_fields' === $_GET['monica_error'] ) {
+        ?>
+        <div class="notice notice-error is-dismissible">
+            <p><?php _e( 'Please fill in all required fields.', 'monica-integration' ); ?></p>
+        </div>
+        <?php
+    }
+}
+add_action( 'admin_notices', 'monica_integration_admin_notices' );
