@@ -8,6 +8,7 @@ function reset_mock_calls() {
     $mock_calls = [
         'update_post_meta' => [],
         'get_post_meta' => [],
+        'get_post_meta_returns' => [],
         'Monica_API_post' => [],
         'Monica_API_put' => [],
         'wp_verify_nonce' => true,
@@ -25,8 +26,10 @@ function _x($a, $b, $c) { return $a; }
 function __($a, $b) { return $a; }
 function register_post_type($a, $b) {}
 function add_meta_box() {}
-function wp_nonce_field() {}
-function _e($a, $b) {}
+function wp_nonce_field($action, $name) {
+    echo '<input type="hidden" name="' . esc_attr($name) . '" value="' . esc_attr($action) . '">';
+}
+function _e($a, $b) { echo $a; }
 function esc_attr($a) { return $a; }
 
 function wp_verify_nonce($nonce, $action) {
@@ -50,8 +53,11 @@ function update_post_meta($post_id, $meta_key, $meta_value) {
 function get_post_meta($post_id, $key, $single = false) {
     global $mock_calls;
     $mock_calls['get_post_meta'][] = func_get_args();
-    if ($key === '_monica_contact_id') {
+    if ($key === '_monica_contact_id' && isset($mock_calls['get_post_meta_return'])) {
         return $mock_calls['get_post_meta_return'];
+    }
+    if (isset($mock_calls['get_post_meta_returns'][$key])) {
+        return $mock_calls['get_post_meta_returns'][$key];
     }
     return '';
 }
