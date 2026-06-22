@@ -1,0 +1,13 @@
+{
+    "name": "monica/wordpress-plugin",
+    "description": "Tests for Monica WordPress Plugin",
+    "type": "project",
+    "require-dev": {
+        "phpunit/phpunit": "^10.0"
+    },
+    "autoload": {
+        "classmap": [
+            "includes/"
+        ]
+    }
+}

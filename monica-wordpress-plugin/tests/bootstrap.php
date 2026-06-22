@@ -1,103 +1,90 @@
 <?php
 
-global $mock_calls;
-$mock_calls = [];
-
-function reset_mock_calls() {
-    global $mock_calls;
-    $mock_calls = [
-        'update_post_meta' => [],
-        'get_post_meta' => [],
-        'Monica_API_post' => [],
-        'Monica_API_put' => [],
-        'wp_verify_nonce' => true,
-        'current_user_can' => true,
-        'get_post_meta_return' => null,
-        'Monica_API_post_return' => ['data' => ['id' => 999]],
-        'is_wp_error_return' => false,
-    ];
-}
-reset_mock_calls();
-
 // Mock WordPress functions
-function add_action() {}
-function _x($a, $b, $c) { return $a; }
-function __($a, $b) { return $a; }
-function register_post_type($a, $b) {}
-function add_meta_box() {}
-function wp_nonce_field() {}
-function _e($a, $b) {}
-function esc_attr($a) { return $a; }
-
-function wp_verify_nonce($nonce, $action) {
-    global $mock_calls;
-    return $mock_calls['wp_verify_nonce'];
-}
-
-function current_user_can($cap, $post_id) {
-    global $mock_calls;
-    return $mock_calls['current_user_can'];
-}
-
-function sanitize_text_field($str) { return $str; }
-function sanitize_email($str) { return $str; }
-
-function update_post_meta($post_id, $meta_key, $meta_value) {
-    global $mock_calls;
-    $mock_calls['update_post_meta'][] = func_get_args();
-}
-
-function get_post_meta($post_id, $key, $single = false) {
-    global $mock_calls;
-    $mock_calls['get_post_meta'][] = func_get_args();
-    if ($key === '_monica_contact_id') {
-        return $mock_calls['get_post_meta_return'];
-    }
-    return '';
-}
-
-function is_wp_error($thing) {
-    global $mock_calls;
-    return $mock_calls['is_wp_error_return'];
-}
-
-class Monica_API {
-    public function post($endpoint, $args = []) {
-        global $mock_calls;
-        $mock_calls['Monica_API_post'][] = func_get_args();
-        return $mock_calls['Monica_API_post_return'];
-    }
-
-    public function put($endpoint, $args = []) {
-        global $mock_calls;
-        $mock_calls['Monica_API_put'][] = func_get_args();
-        return ['data' => ['id' => 999]];
+if ( ! function_exists( 'get_option' ) ) {
+    function get_option( $option, $default = false ) {
+        global $wp_options;
+        return isset( $wp_options[ $option ] ) ? $wp_options[ $option ] : $default;
     }
 }
 
-// Basic assertions
-function assert_equals($expected, $actual, $message = '') {
-    if ($expected !== $actual) {
-        throw new Exception("Assertion failed: Expected " . print_r($expected, true) . ", got " . print_r($actual, true) . ". $message");
+if ( ! function_exists( 'update_option' ) ) {
+    function update_option( $option, $value, $autoload = null ) {
+        global $wp_options;
+        $wp_options[ $option ] = $value;
+        return true;
     }
 }
 
-function assert_true($actual, $message = '') {
-    assert_equals(true, $actual, $message);
-}
-
-function assert_false($actual, $message = '') {
-    assert_equals(false, $actual, $message);
-}
-
-function assert_empty($actual, $message = '') {
-    if (!empty($actual)) {
-        throw new Exception("Assertion failed: Expected empty, got " . print_r($actual, true) . ". $message");
+if ( ! function_exists( '__' ) ) {
+    function __( $text, $domain = 'default' ) {
+        return $text;
     }
 }
 
-function assert_not_empty($actual, $message = '') {
-    if (empty($actual)) {
-        throw new Exception("Assertion failed: Expected not empty. $message");
+if ( ! function_exists( 'esc_url' ) ) {
+    function esc_url( $url ) {
+        return $url;
+    }
+}
+
+if ( ! function_exists( 'esc_attr' ) ) {
+    function esc_attr( $text ) {
+        return htmlspecialchars( $text, ENT_QUOTES );
+    }
+}
+
+if ( ! function_exists( 'admin_url' ) ) {
+    function admin_url( $path = '', $scheme = 'admin' ) {
+        return 'https://example.com/wp-admin/' . $path;
+    }
+}
+
+// Include plugin files
+require_once __DIR__ . '/../includes/class-monica-api.php';
+require_once __DIR__ . '/../includes/class-monica-settings.php';
+
+// Global variable to store mocked options
+$GLOBALS['wp_options'] = [];
+
+if ( ! function_exists( 'add_action' ) ) {
+    function add_action( $hook_name, $callback, $priority = 10, $accepted_args = 1 ) {
+        return true;
+    }
+}
+
+if ( ! function_exists( 'get_admin_page_title' ) ) {
+    function get_admin_page_title() {
+        return 'Mock Admin Page Title';
+    }
+}
+
+if ( ! function_exists( 'esc_html' ) ) {
+    function esc_html( $text ) {
+        return htmlspecialchars( $text, ENT_QUOTES );
+    }
+}
+
+if ( ! function_exists( 'settings_fields' ) ) {
+    function settings_fields( $option_group ) {
+        echo '<input type="hidden" name="option_page" value="' . esc_attr($option_group) . '" />';
+    }
+}
+
+if ( ! function_exists( 'do_settings_sections' ) ) {
+    function do_settings_sections( $page ) {
+        // mock implementation
+    }
+}
+
+if ( ! function_exists( '_e' ) ) {
+    function _e( $text, $domain = 'default' ) {
+        echo $text;
+    }
+}
+
+if ( ! function_exists( 'submit_button' ) ) {
+    function submit_button( $text = null, $type = 'primary', $name = 'submit', $wrap = true, $other_attributes = null ) {
+        echo '<input type="submit" name="' . esc_attr($name) . '" id="' . esc_attr($name) . '" class="button button-' . esc_attr($type) . '" value="Save Changes" />';
     }
 }
