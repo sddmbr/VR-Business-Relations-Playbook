@@ -38,7 +38,7 @@ class Monica_Settings {
                     </tr>
                     <tr valign="top">
                         <th scope="row"><?php _e( 'Client Secret', 'monica-integration' ); ?></th>
-                        <td><input type="text" name="monica_client_secret" value="<?php echo esc_attr( get_option( 'monica_client_secret' ) ); ?>" /></td>
+                        <td><input type="password" name="monica_client_secret" value="<?php echo esc_attr( get_option( 'monica_client_secret' ) ); ?>" /></td>
                     </tr>
                 </table>
                 <?php submit_button(); ?>
