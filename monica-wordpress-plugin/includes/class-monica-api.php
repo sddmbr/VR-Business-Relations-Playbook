@@ -38,11 +38,21 @@ class Monica_API {
         return $data;
     }
 
-    public function get( $endpoint, $args = [] ) {
+    private function get_access_token_or_error() {
         $access_token = get_option( 'monica_access_token' );
 
         if ( ! $access_token ) {
             return new WP_Error( 'no_access_token', __( 'No access token found.', 'monica-integration' ) );
+        }
+
+        return $access_token;
+    }
+
+    public function get( $endpoint, $args = [] ) {
+        $access_token = $this->get_access_token_or_error();
+
+        if ( is_wp_error( $access_token ) ) {
+            return $access_token;
         }
 
         $args['headers'] = [
@@ -58,10 +68,10 @@ class Monica_API {
     }
 
     public function post( $endpoint, $args = [] ) {
-        $access_token = get_option( 'monica_access_token' );
+        $access_token = $this->get_access_token_or_error();
 
-        if ( ! $access_token ) {
-            return new WP_Error( 'no_access_token', __( 'No access token found.', 'monica-integration' ) );
+        if ( is_wp_error( $access_token ) ) {
+            return $access_token;
         }
 
         $args['headers'] = [
@@ -78,10 +88,10 @@ class Monica_API {
     }
 
     public function put( $endpoint, $args = [] ) {
-        $access_token = get_option( 'monica_access_token' );
+        $access_token = $this->get_access_token_or_error();
 
-        if ( ! $access_token ) {
-            return new WP_Error( 'no_access_token', __( 'No access token found.', 'monica-integration' ) );
+        if ( is_wp_error( $access_token ) ) {
+            return $access_token;
         }
 
         $args['method']  = 'PUT';
