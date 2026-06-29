@@ -33,6 +33,29 @@ function monica_integration_init() {
 }
 add_action( 'plugins_loaded', 'monica_integration_init' );
 
+/**
+ * Validates a POST request by checking the nonce and user capabilities.
+ *
+ * @param string $action_name The name of the action and nonce.
+ * @return bool True if the request is valid, false otherwise.
+ */
+function monica_integration_is_valid_post_request( $action_name ) {
+    if ( ! isset( $_POST[ $action_name ] ) || ! isset( $_POST[ $action_name . '_nonce' ] ) ) {
+        return false;
+    }
+
+    if ( ! wp_verify_nonce( $_POST[ $action_name . '_nonce' ], $action_name ) ) {
+        return false;
+    }
+
+    $post_id = absint( $_POST['monica_post_id'] ?? 0 );
+    if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
+        return false;
+    }
+
+    return true;
+}
+
 function monica_integration_oauth_redirect() {
     if ( ! current_user_can( 'manage_options' ) ) {
         return;
@@ -59,10 +82,20 @@ function monica_integration_oauth_redirect() {
 add_action( 'admin_init', 'monica_integration_oauth_redirect' );
 
 function monica_integration_admin_notices() {
-    if ( isset( $_GET['monica_error'] ) && 'invalid_state' === $_GET['monica_error'] ) {
+    if ( ! isset( $_GET['monica_error'] ) ) {
+        return;
+    }
+
+    if ( 'invalid_state' === $_GET['monica_error'] ) {
         ?>
         <div class="notice notice-error is-dismissible">
             <p><?php _e( 'OAuth authorization failed: Invalid state parameter. Possible CSRF attack.', 'monica-integration' ); ?></p>
+        </div>
+        <?php
+    } elseif ( 'empty_fields' === $_GET['monica_error'] ) {
+        ?>
+        <div class="notice notice-error is-dismissible">
+            <p><?php _e( 'Please fill in all required fields.', 'monica-integration' ); ?></p>
         </div>
         <?php
     }
@@ -70,13 +103,8 @@ function monica_integration_admin_notices() {
 add_action( 'admin_notices', 'monica_integration_admin_notices' );
 
 function monica_integration_add_reminder() {
-    if ( isset( $_POST['monica_add_reminder'] ) && isset( $_POST['monica_add_reminder_nonce'] ) ) {
-        if ( ! wp_verify_nonce( $_POST['monica_add_reminder_nonce'], 'monica_add_reminder' ) ) {
-            return;
-        }
-
-        $post_id = absint( $_POST['monica_post_id'] ?? 0 );
-        if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
+    if ( isset( $_POST['monica_add_reminder'] ) ) {
+        if ( ! monica_integration_is_valid_post_request( 'monica_add_reminder' ) ) {
             return;
         }
 
@@ -104,13 +132,8 @@ function monica_integration_add_reminder() {
 add_action( 'admin_init', 'monica_integration_add_reminder' );
 
 function monica_integration_add_note() {
-    if ( isset( $_POST['monica_add_note'] ) && isset( $_POST['monica_add_note_nonce'] ) ) {
-        if ( ! wp_verify_nonce( $_POST['monica_add_note_nonce'], 'monica_add_note' ) ) {
-            return;
-        }
-
-        $post_id = absint( $_POST['monica_post_id'] ?? 0 );
-        if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
+    if ( isset( $_POST['monica_add_note'] ) ) {
+        if ( ! monica_integration_is_valid_post_request( 'monica_add_note' ) ) {
             return;
         }
 
@@ -136,13 +159,8 @@ function monica_integration_add_note() {
 add_action( 'admin_init', 'monica_integration_add_note' );
 
 function monica_integration_add_relationship() {
-    if ( isset( $_POST['monica_add_relationship'] ) && isset( $_POST['monica_add_relationship_nonce'] ) ) {
-        if ( ! wp_verify_nonce( $_POST['monica_add_relationship_nonce'], 'monica_add_relationship' ) ) {
-            return;
-        }
-
-        $post_id = absint( $_POST['monica_post_id'] ?? 0 );
-        if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
+    if ( isset( $_POST['monica_add_relationship'] ) ) {
+        if ( ! monica_integration_is_valid_post_request( 'monica_add_relationship' ) ) {
             return;
         }
 
@@ -170,13 +188,3 @@ function monica_integration_add_relationship() {
 }
 add_action( 'admin_init', 'monica_integration_add_relationship' );
 
-function monica_integration_admin_notices() {
-    if ( isset( $_GET['monica_error'] ) && 'empty_fields' === $_GET['monica_error'] ) {
-        ?>
-        <div class="notice notice-error is-dismissible">
-            <p><?php _e( 'Please fill in all required fields.', 'monica-integration' ); ?></p>
-        </div>
-        <?php
-    }
-}
-add_action( 'admin_notices', 'monica_integration_admin_notices' );
