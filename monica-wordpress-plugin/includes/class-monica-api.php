@@ -4,8 +4,14 @@ class Monica_API {
 
     private $api_url = 'https://app.monicahq.com/api/';
 
-    public function __construct() {
-        // Constructor
+    private function get_auth_token() {
+        $access_token = get_option( 'monica_access_token' );
+
+        if ( ! $access_token ) {
+            return new WP_Error( 'no_access_token', __( 'No access token found.', 'monica-integration' ) );
+        }
+
+        return $access_token;
     }
 
     public function get_authorization_url( $redirect_uri ) {
@@ -32,6 +38,10 @@ class Monica_API {
             'body' => $params,
         ] );
 
+        if ( is_wp_error( $response ) ) {
+            return $response;
+        }
+
         $body = wp_remote_retrieve_body( $response );
         $data = json_decode( $body, true );
 
@@ -39,10 +49,10 @@ class Monica_API {
     }
 
     public function get( $endpoint, $args = [] ) {
-        $access_token = get_option( 'monica_access_token' );
+        $access_token = $this->get_auth_token();
 
-        if ( ! $access_token ) {
-            return new WP_Error( 'no_access_token', __( 'No access token found.', 'monica-integration' ) );
+        if ( is_wp_error( $access_token ) ) {
+            return $access_token;
         }
 
         $args['headers'] = [
@@ -58,10 +68,10 @@ class Monica_API {
     }
 
     public function post( $endpoint, $args = [] ) {
-        $access_token = get_option( 'monica_access_token' );
+        $access_token = $this->get_auth_token();
 
-        if ( ! $access_token ) {
-            return new WP_Error( 'no_access_token', __( 'No access token found.', 'monica-integration' ) );
+        if ( is_wp_error( $access_token ) ) {
+            return $access_token;
         }
 
         $args['headers'] = [
@@ -78,10 +88,10 @@ class Monica_API {
     }
 
     public function put( $endpoint, $args = [] ) {
-        $access_token = get_option( 'monica_access_token' );
+        $access_token = $this->get_auth_token();
 
-        if ( ! $access_token ) {
-            return new WP_Error( 'no_access_token', __( 'No access token found.', 'monica-integration' ) );
+        if ( is_wp_error( $access_token ) ) {
+            return $access_token;
         }
 
         $args['method']  = 'PUT';
