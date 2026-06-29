@@ -6,6 +6,7 @@ class Monica_Contacts {
         add_action( 'init', [ $this, 'register_contact_post_type' ] );
         add_action( 'add_meta_boxes', [ $this, 'add_contact_meta_boxes' ] );
         add_action( 'save_post_monica_contact', [ $this, 'save_contact_meta_data' ] );
+        add_action( 'monica_sync_contact', [ $this, 'sync_contact_with_api' ] );
     }
 
     public function register_contact_post_type() {
@@ -102,6 +103,16 @@ class Monica_Contacts {
         update_post_meta( $post_id, '_monica_first_name', $first_name );
         update_post_meta( $post_id, '_monica_last_name', $last_name );
         update_post_meta( $post_id, '_monica_email', $email );
+
+        if ( ! wp_next_scheduled( 'monica_sync_contact', [ $post_id ] ) ) {
+            wp_schedule_single_event( time(), 'monica_sync_contact', [ $post_id ] );
+        }
+    }
+
+    public function sync_contact_with_api( $post_id ) {
+        $first_name = get_post_meta( $post_id, '_monica_first_name', true );
+        $last_name  = get_post_meta( $post_id, '_monica_last_name', true );
+        $email      = get_post_meta( $post_id, '_monica_email', true );
 
         $api = new Monica_API();
         $monica_contact_id = get_post_meta( $post_id, '_monica_contact_id', true );
