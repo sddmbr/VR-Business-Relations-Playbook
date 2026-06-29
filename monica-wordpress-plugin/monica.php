@@ -97,7 +97,7 @@ function monica_integration_add_reminder() {
             ] ),
         ] );
 
-        wp_redirect( $_SERVER['HTTP_REFERER'] );
+        wp_safe_redirect( wp_get_referer() ? wp_get_referer() : admin_url() );
         exit;
     }
 }
@@ -129,7 +129,7 @@ function monica_integration_add_note() {
             ] ),
         ] );
 
-        wp_redirect( $_SERVER['HTTP_REFERER'] );
+        wp_safe_redirect( wp_get_referer() ? wp_get_referer() : admin_url() );
         exit;
     }
 }
@@ -164,13 +164,13 @@ function monica_integration_add_relationship() {
             ] ),
         ] );
 
-        wp_redirect( $_SERVER['HTTP_REFERER'] );
+        wp_safe_redirect( wp_get_referer() ? wp_get_referer() : admin_url() );
         exit;
     }
 }
 add_action( 'admin_init', 'monica_integration_add_relationship' );
 
-function monica_integration_admin_notices() {
+function monica_integration_admin_notices_empty_fields() {
     if ( isset( $_GET['monica_error'] ) && 'empty_fields' === $_GET['monica_error'] ) {
         ?>
         <div class="notice notice-error is-dismissible">
@@ -179,4 +179,4 @@ function monica_integration_admin_notices() {
         <?php
     }
 }
-add_action( 'admin_notices', 'monica_integration_admin_notices' );
+add_action( 'admin_notices', 'monica_integration_admin_notices_empty_fields' );
