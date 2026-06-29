@@ -58,7 +58,7 @@ function monica_integration_oauth_redirect() {
 }
 add_action( 'admin_init', 'monica_integration_oauth_redirect' );
 
-function monica_integration_admin_notices() {
+function monica_integration_oauth_admin_notices() {
     if ( isset( $_GET['monica_error'] ) && 'invalid_state' === $_GET['monica_error'] ) {
         ?>
         <div class="notice notice-error is-dismissible">
@@ -67,7 +67,7 @@ function monica_integration_admin_notices() {
         <?php
     }
 }
-add_action( 'admin_notices', 'monica_integration_admin_notices' );
+add_action( 'admin_notices', 'monica_integration_oauth_admin_notices' );
 
 function monica_integration_add_reminder() {
     if ( isset( $_POST['monica_add_reminder'] ) && isset( $_POST['monica_add_reminder_nonce'] ) ) {
@@ -96,6 +96,8 @@ function monica_integration_add_reminder() {
                 'reminder_date' => $date,
             ] ),
         ] );
+
+        delete_transient( "monica_notes_{$contact_id}" );
 
         wp_redirect( $_SERVER['HTTP_REFERER'] );
         exit;
