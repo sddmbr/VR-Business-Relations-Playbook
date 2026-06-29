@@ -4,8 +4,13 @@ class Monica_API {
 
     private $api_url = 'https://app.monicahq.com/api/';
 
-    public function __construct() {
-        // Constructor
+    private function handle_response( $response ) {
+        if ( is_wp_error( $response ) ) {
+            return $response;
+        }
+
+        $body = wp_remote_retrieve_body( $response );
+        return json_decode( $body, true );
     }
 
     public function get_authorization_url( $redirect_uri ) {
@@ -32,10 +37,7 @@ class Monica_API {
             'body' => $params,
         ] );
 
-        $body = wp_remote_retrieve_body( $response );
-        $data = json_decode( $body, true );
-
-        return $data;
+        return $this->handle_response( $response );
     }
 
     public function get( $endpoint, $args = [] ) {
@@ -51,10 +53,7 @@ class Monica_API {
 
         $response = wp_remote_get( $this->api_url . $endpoint, $args );
 
-        $body = wp_remote_retrieve_body( $response );
-        $data = json_decode( $body, true );
-
-        return $data;
+        return $this->handle_response( $response );
     }
 
     public function post( $endpoint, $args = [] ) {
@@ -71,10 +70,7 @@ class Monica_API {
 
         $response = wp_remote_post( $this->api_url . $endpoint, $args );
 
-        $body = wp_remote_retrieve_body( $response );
-        $data = json_decode( $body, true );
-
-        return $data;
+        return $this->handle_response( $response );
     }
 
     public function put( $endpoint, $args = [] ) {
@@ -92,9 +88,6 @@ class Monica_API {
 
         $response = wp_remote_request( $this->api_url . $endpoint, $args );
 
-        $body = wp_remote_retrieve_body( $response );
-        $data = json_decode( $body, true );
-
-        return $data;
+        return $this->handle_response( $response );
     }
 }
