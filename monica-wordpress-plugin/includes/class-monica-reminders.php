@@ -26,11 +26,18 @@ class Monica_Reminders {
             return;
         }
 
-        $reminders = $api->get( "contacts/{$monica_contact_id}/reminders" );
+        $cache_key = 'monica_reminders_' . $monica_contact_id;
+        $reminders = get_transient( $cache_key );
 
-        if ( is_wp_error( $reminders ) ) {
-            echo '<p>' . $reminders->get_error_message() . '</p>';
-            return;
+        if ( false === $reminders ) {
+            $reminders = $api->get( "contacts/{$monica_contact_id}/reminders" );
+
+            if ( is_wp_error( $reminders ) ) {
+                echo '<p>' . $reminders->get_error_message() . '</p>';
+                return;
+            }
+
+            set_transient( $cache_key, $reminders, 5 * MINUTE_IN_SECONDS );
         }
 
         if ( empty( $reminders['data'] ) ) {
