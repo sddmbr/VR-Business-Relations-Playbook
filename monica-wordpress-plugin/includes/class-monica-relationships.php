@@ -26,7 +26,16 @@ class Monica_Relationships {
             return;
         }
 
-        $relationships = $api->get( "contacts/{$monica_contact_id}/relationships" );
+        $transient_key = 'monica_relationships_' . $monica_contact_id;
+        $relationships = get_transient( $transient_key );
+
+        if ( false === $relationships ) {
+            $relationships = $api->get( "contacts/{$monica_contact_id}/relationships" );
+
+            if ( ! is_wp_error( $relationships ) ) {
+                set_transient( $transient_key, $relationships, 5 * 60 );
+            }
+        }
 
         if ( is_wp_error( $relationships ) ) {
             echo '<p>' . $relationships->get_error_message() . '</p>';
@@ -53,7 +62,17 @@ class Monica_Relationships {
                 <label for="monica_relationship_type_id"><?php _e( 'Relationship Type', 'monica-integration' ); ?></label>
                 <select id="monica_relationship_type_id" name="monica_relationship_type_id">
                     <?php
-                    $relationship_types = $api->get( 'relationshiptypes' );
+                    $types_transient_key = 'monica_relationship_types';
+                    $relationship_types = get_transient( $types_transient_key );
+
+                    if ( false === $relationship_types ) {
+                        $relationship_types = $api->get( 'relationshiptypes' );
+
+                        if ( ! is_wp_error( $relationship_types ) ) {
+                            set_transient( $types_transient_key, $relationship_types, 12 * 60 * 60 );
+                        }
+                    }
+
                     if ( ! is_wp_error( $relationship_types ) && ! empty( $relationship_types['data'] ) ) {
                         foreach ( $relationship_types['data'] as $relationship_type ) {
                             echo '<option value="' . esc_attr( $relationship_type['id'] ) . '">' . esc_html( $relationship_type['name'] ) . '</option>';
