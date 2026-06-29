@@ -53,7 +53,13 @@ class Monica_Relationships {
                 <label for="monica_relationship_type_id"><?php _e( 'Relationship Type', 'monica-integration' ); ?></label>
                 <select id="monica_relationship_type_id" name="monica_relationship_type_id">
                     <?php
-                    $relationship_types = $api->get( 'relationshiptypes' );
+                    $relationship_types = get_transient( 'monica_relationship_types' );
+                    if ( false === $relationship_types ) {
+                        $relationship_types = $api->get( 'relationshiptypes' );
+                        if ( ! is_wp_error( $relationship_types ) ) {
+                            set_transient( 'monica_relationship_types', $relationship_types, 86400 );
+                        }
+                    }
                     if ( ! is_wp_error( $relationship_types ) && ! empty( $relationship_types['data'] ) ) {
                         foreach ( $relationship_types['data'] as $relationship_type ) {
                             echo '<option value="' . esc_attr( $relationship_type['id'] ) . '">' . esc_html( $relationship_type['name'] ) . '</option>';
