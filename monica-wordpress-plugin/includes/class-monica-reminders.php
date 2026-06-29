@@ -26,7 +26,16 @@ class Monica_Reminders {
             return;
         }
 
-        $reminders = $api->get( "contacts/{$monica_contact_id}/reminders" );
+        $transient_key = "monica_reminders_{$monica_contact_id}";
+        $reminders     = get_transient( $transient_key );
+
+        if ( false === $reminders ) {
+            $reminders = $api->get( "contacts/{$monica_contact_id}/reminders" );
+
+            if ( ! is_wp_error( $reminders ) ) {
+                set_transient( $transient_key, $reminders, 5 * MINUTE_IN_SECONDS );
+            }
+        }
 
         if ( is_wp_error( $reminders ) ) {
             echo '<p>' . $reminders->get_error_message() . '</p>';
