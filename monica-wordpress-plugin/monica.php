@@ -170,7 +170,7 @@ function monica_integration_add_relationship() {
 }
 add_action( 'admin_init', 'monica_integration_add_relationship' );
 
-function monica_integration_admin_notices() {
+function monica_integration_empty_fields_admin_notices() {
     if ( isset( $_GET['monica_error'] ) && 'empty_fields' === $_GET['monica_error'] ) {
         ?>
         <div class="notice notice-error is-dismissible">
@@ -179,4 +179,4 @@ function monica_integration_admin_notices() {
         <?php
     }
 }
-add_action( 'admin_notices', 'monica_integration_admin_notices' );
+add_action( 'admin_notices', 'monica_integration_empty_fields_admin_notices' );
