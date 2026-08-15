@@ -99,7 +99,7 @@ function monica_integration_add_reminder() {
 
         delete_transient( "monica_reminders_{$contact_id}" );
 
-        wp_redirect( $_SERVER['HTTP_REFERER'] );
+        wp_safe_redirect( wp_get_referer() ? wp_get_referer() : admin_url() );
         exit;
     }
 }
@@ -133,7 +133,7 @@ function monica_integration_add_note() {
 
         delete_transient( "monica_reminders_{$contact_id}" );
 
-        wp_redirect( $_SERVER['HTTP_REFERER'] );
+        wp_safe_redirect( wp_get_referer() ? wp_get_referer() : admin_url() );
         exit;
     }
 }
@@ -168,7 +168,7 @@ function monica_integration_add_relationship() {
             ] ),
         ] );
 
-        wp_redirect( $_SERVER['HTTP_REFERER'] );
+        wp_safe_redirect( wp_get_referer() ? wp_get_referer() : admin_url() );
         exit;
     }
 }
