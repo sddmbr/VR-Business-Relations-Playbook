@@ -202,3 +202,83 @@ if ( ! function_exists( 'wp_create_nonce' ) ) {
         return 'mock_nonce_' . $action;
     }
 }
+
+if ( ! function_exists( 'register_post_type' ) ) {
+    function register_post_type( $post_type, $args = [] ) {
+        global $mock_calls;
+        $mock_calls['register_post_type'][] = [ 'post_type' => $post_type, 'args' => $args ];
+        return true;
+    }
+}
+
+if ( ! function_exists( '_x' ) ) {
+    function _x( $text, $context, $domain = 'default' ) {
+        return $text;
+    }
+}
+
+if ( ! function_exists( 'wp_verify_nonce' ) ) {
+    function wp_verify_nonce( $nonce, $action = -1 ) {
+        global $mock_calls;
+        if ( isset( $mock_calls['wp_verify_nonce_return'] ) ) {
+            return $mock_calls['wp_verify_nonce_return'];
+        }
+        return $nonce === 'mock_nonce';
+    }
+}
+
+if ( ! function_exists( 'current_user_can' ) ) {
+    function current_user_can( $capability, $args = null ) {
+        global $mock_calls;
+        if ( isset( $mock_calls['current_user_can_return'] ) ) {
+            return $mock_calls['current_user_can_return'];
+        }
+        return true;
+    }
+}
+
+if ( ! function_exists( 'sanitize_text_field' ) ) {
+    function sanitize_text_field( $str ) {
+        return trim( strip_tags( $str ) );
+    }
+}
+
+if ( ! function_exists( 'sanitize_email' ) ) {
+    function sanitize_email( $email ) {
+        return trim( $email );
+    }
+}
+
+if ( ! function_exists( 'update_post_meta' ) ) {
+    function update_post_meta( $post_id, $meta_key, $meta_value, $prev_value = '' ) {
+        global $mock_calls;
+        $mock_calls['update_post_meta'][] = [
+            'post_id' => $post_id,
+            'meta_key' => $meta_key,
+            'meta_value' => $meta_value
+        ];
+        return true;
+    }
+}
+
+if ( ! function_exists( 'wp_remote_post' ) ) {
+    function wp_remote_post( $url, $args = [] ) {
+        global $mock_calls;
+        $mock_calls['wp_remote_post'][] = [ 'url' => $url, 'args' => $args ];
+        if ( isset( $mock_calls['wp_remote_post_return'] ) ) {
+            return $mock_calls['wp_remote_post_return'];
+        }
+        return [ 'body' => json_encode( ['data' => ['id' => 123]] ) ];
+    }
+}
+
+if ( ! function_exists( 'wp_remote_request' ) ) {
+    function wp_remote_request( $url, $args = [] ) {
+        global $mock_calls;
+        $mock_calls['wp_remote_request'][] = [ 'url' => $url, 'args' => $args ];
+        if ( isset( $mock_calls['wp_remote_request_return'] ) ) {
+            return $mock_calls['wp_remote_request_return'];
+        }
+        return [ 'body' => json_encode( ['data' => ['id' => 123]] ) ];
+    }
+}
