@@ -39,4 +39,65 @@ class Test_Class_Monica_Api {
 
         assertEquals( $expected, $url, 'The redirect URI should be URL encoded.' );
     }
+
+    public function test_get_access_token_api_error() {
+        global $mock_calls;
+
+        update_option( 'monica_client_id', 'client1' );
+        update_option( 'monica_client_secret', 'secret1' );
+
+        $error = new WP_Error( 'http_error', 'Service Unavailable' );
+        $mock_calls['wp_remote_post']['https://app.monicahq.com/oauth/token'] = $error;
+
+        $api = new Monica_API();
+        $result = $api->get_access_token( 'code1', 'uri1' );
+
+        assertEquals( true, is_wp_error( $result ), 'Expected a WP_Error to be returned' );
+        assertEquals( 'http_error', $result->get_error_code(), 'Expected the same error code' );
+    }
+
+    public function test_get_api_error() {
+        global $mock_calls;
+
+        update_option( 'monica_access_token', 'token1' );
+
+        $error = new WP_Error( 'http_error', 'Service Unavailable' );
+        $mock_calls['wp_remote_get']['https://app.monicahq.com/api/contacts'] = $error;
+
+        $api = new Monica_API();
+        $result = $api->get( 'contacts' );
+
+        assertEquals( true, is_wp_error( $result ), 'Expected a WP_Error to be returned' );
+        assertEquals( 'http_error', $result->get_error_code(), 'Expected the same error code' );
+    }
+
+    public function test_post_api_error() {
+        global $mock_calls;
+
+        update_option( 'monica_access_token', 'token1' );
+
+        $error = new WP_Error( 'http_error', 'Service Unavailable' );
+        $mock_calls['wp_remote_post']['https://app.monicahq.com/api/contacts'] = $error;
+
+        $api = new Monica_API();
+        $result = $api->post( 'contacts' );
+
+        assertEquals( true, is_wp_error( $result ), 'Expected a WP_Error to be returned' );
+        assertEquals( 'http_error', $result->get_error_code(), 'Expected the same error code' );
+    }
+
+    public function test_put_api_error() {
+        global $mock_calls;
+
+        update_option( 'monica_access_token', 'token1' );
+
+        $error = new WP_Error( 'http_error', 'Service Unavailable' );
+        $mock_calls['wp_remote_request']['https://app.monicahq.com/api/contacts/1'] = $error;
+
+        $api = new Monica_API();
+        $result = $api->put( 'contacts/1' );
+
+        assertEquals( true, is_wp_error( $result ), 'Expected a WP_Error to be returned' );
+        assertEquals( 'http_error', $result->get_error_code(), 'Expected the same error code' );
+    }
 }

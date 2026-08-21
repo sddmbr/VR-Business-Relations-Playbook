@@ -157,6 +157,26 @@ if ( ! function_exists( 'wp_remote_get' ) ) {
     }
 }
 
+if ( ! function_exists( 'wp_remote_post' ) ) {
+    function wp_remote_post( $url, $args = [] ) {
+        global $mock_calls;
+        if ( isset( $mock_calls['wp_remote_post'][$url] ) ) {
+            return $mock_calls['wp_remote_post'][$url];
+        }
+        return new WP_Error('http_request_failed', 'A valid URL was not provided.');
+    }
+}
+
+if ( ! function_exists( 'wp_remote_request' ) ) {
+    function wp_remote_request( $url, $args = [] ) {
+        global $mock_calls;
+        if ( isset( $mock_calls['wp_remote_request'][$url] ) ) {
+            return $mock_calls['wp_remote_request'][$url];
+        }
+        return new WP_Error('http_request_failed', 'A valid URL was not provided.');
+    }
+}
+
 if ( ! function_exists( 'wp_remote_retrieve_body' ) ) {
     function wp_remote_retrieve_body( $response ) {
         if ( is_wp_error( $response ) ) {
