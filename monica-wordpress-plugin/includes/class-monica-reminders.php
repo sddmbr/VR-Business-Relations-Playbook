@@ -42,11 +42,16 @@ class Monica_Reminders {
             return;
         }
 
-        if ( empty( $reminders['data'] ) ) {
+        $this->render_reminders_list( $reminders['data'] ?? [] );
+        $this->render_add_reminder_form( $monica_contact_id, $post->ID );
+    }
+
+    private function render_reminders_list( $reminders_data ) {
+        if ( empty( $reminders_data ) ) {
             echo '<p>' . __( 'No reminders found.', 'monica-integration' ) . '</p>';
         } else {
             echo '<ul>';
-            foreach ( $reminders['data'] as $reminder ) {
+            foreach ( $reminders_data as $reminder ) {
                 echo '<li>';
                 echo esc_html( $reminder['title'] );
                 echo ' - ';
@@ -55,6 +60,9 @@ class Monica_Reminders {
             }
             echo '</ul>';
         }
+    }
+
+    private function render_add_reminder_form( $monica_contact_id, $post_id ) {
         ?>
         <h4><?php _e( 'Add New Reminder', 'monica-integration' ); ?></h4>
         <form action="" method="post">
@@ -67,7 +75,7 @@ class Monica_Reminders {
                 <input type="date" id="monica_reminder_date" name="monica_reminder_date" />
             </p>
             <input type="hidden" name="monica_contact_id" value="<?php echo esc_attr( $monica_contact_id ); ?>" />
-            <input type="hidden" name="monica_post_id" value="<?php echo esc_attr( $post->ID ); ?>" />
+            <input type="hidden" name="monica_post_id" value="<?php echo esc_attr( $post_id ); ?>" />
             <?php wp_nonce_field( 'monica_add_reminder', 'monica_add_reminder_nonce' ); ?>
             <input type="submit" name="monica_add_reminder" class="button" value="<?php _e( 'Add Reminder', 'monica-integration' ); ?>" />
         </form>
