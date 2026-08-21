@@ -76,7 +76,7 @@ function monica_integration_add_reminder() {
         }
 
         $post_id = absint( $_POST['monica_post_id'] ?? 0 );
-        if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
+        if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) || get_post_type( $post_id ) !== 'monica_contact' ) {
             return;
         }
 
@@ -112,7 +112,7 @@ function monica_integration_add_note() {
         }
 
         $post_id = absint( $_POST['monica_post_id'] ?? 0 );
-        if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
+        if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) || get_post_type( $post_id ) !== 'monica_contact' ) {
             return;
         }
 
@@ -146,7 +146,7 @@ function monica_integration_add_relationship() {
         }
 
         $post_id = absint( $_POST['monica_post_id'] ?? 0 );
-        if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
+        if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) || get_post_type( $post_id ) !== 'monica_contact' ) {
             return;
         }
 
