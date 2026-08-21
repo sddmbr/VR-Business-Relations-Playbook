@@ -76,6 +76,12 @@ class Monica_Relationships {
                         'post_type'      => 'monica_contact',
                         'posts_per_page' => -1,
                         'post__not_in'   => [ $post->ID ],
+                        'meta_query'     => [
+                            [
+                                'key'     => '_monica_contact_id',
+                                'compare' => 'EXISTS',
+                            ],
+                        ],
                     ] );
                     if ( ! empty( $contacts ) ) {
                         foreach ( $contacts as $contact ) {
