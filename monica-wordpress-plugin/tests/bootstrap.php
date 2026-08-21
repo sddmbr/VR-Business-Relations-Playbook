@@ -34,6 +34,22 @@ if ( ! function_exists( 'esc_attr' ) ) {
     }
 }
 
+if ( ! function_exists( 'plugin_dir_path' ) ) {
+    function plugin_dir_path( $file ) {
+        return trailingslashit( dirname( $file ) );
+    }
+}
+
+if ( ! function_exists( 'trailingslashit' ) ) {
+    function trailingslashit( $string ) {
+        return rtrim( $string, '/\\' ) . '/';
+    }
+}
+
+if ( ! defined( 'WPINC' ) ) {
+    define( 'WPINC', 'wp-includes' );
+}
+
 if ( ! function_exists( 'admin_url' ) ) {
     function admin_url( $path = '', $scheme = 'admin' ) {
         return 'https://example.com/wp-admin/' . $path;
@@ -150,10 +166,121 @@ $GLOBALS['mock_post_meta'] = [];
 if ( ! function_exists( 'wp_remote_get' ) ) {
     function wp_remote_get( $url, $args = [] ) {
         global $mock_calls;
+        $mock_calls['wp_remote_get_calls'][] = ['url' => $url, 'args' => $args];
         if ( isset( $mock_calls['wp_remote_get'][$url] ) ) {
             return $mock_calls['wp_remote_get'][$url];
         }
         return new WP_Error('http_request_failed', 'A valid URL was not provided.');
+    }
+}
+
+if ( ! function_exists( 'wp_remote_post' ) ) {
+    function wp_remote_post( $url, $args = [] ) {
+        global $mock_calls;
+        $mock_calls['wp_remote_post_calls'][] = ['url' => $url, 'args' => $args];
+        if ( isset( $mock_calls['wp_remote_post'][$url] ) ) {
+            return $mock_calls['wp_remote_post'][$url];
+        }
+        return new WP_Error('http_request_failed', 'A valid URL was not provided.');
+    }
+}
+
+if ( ! function_exists( 'wp_remote_request' ) ) {
+    function wp_remote_request( $url, $args = [] ) {
+        global $mock_calls;
+        $mock_calls['wp_remote_request_calls'][] = ['url' => $url, 'args' => $args];
+        if ( isset( $mock_calls['wp_remote_request'][$url] ) ) {
+            return $mock_calls['wp_remote_request'][$url];
+        }
+        return new WP_Error('http_request_failed', 'A valid URL was not provided.');
+    }
+}
+
+if ( ! function_exists( 'current_user_can' ) ) {
+    function current_user_can( $capability, ...$args ) {
+        global $mock_calls;
+        return isset( $mock_calls['current_user_can'] ) ? $mock_calls['current_user_can'] : true;
+    }
+}
+
+if ( ! function_exists( 'wp_verify_nonce' ) ) {
+    function wp_verify_nonce( $nonce, $action = -1 ) {
+        global $mock_calls;
+        if ( isset( $mock_calls['wp_verify_nonce_return'] ) ) {
+            return $mock_calls['wp_verify_nonce_return'];
+        }
+        return $nonce === 'mock_nonce_' . $action || $nonce === 'mock_nonce';
+    }
+}
+
+class WpRedirectException extends Exception {}
+
+if ( ! function_exists( 'wp_redirect' ) ) {
+    function wp_redirect( $location, $status = 302 ) {
+        global $mock_calls;
+        $mock_calls['wp_redirect'] = $location;
+        throw new WpRedirectException("wp_redirect called with $location");
+    }
+}
+
+if ( ! function_exists( 'wp_safe_redirect' ) ) {
+    function wp_safe_redirect( $location, $status = 302 ) {
+        global $mock_calls;
+        $mock_calls['wp_safe_redirect'] = $location;
+        throw new WpRedirectException("wp_safe_redirect called with $location");
+    }
+}
+
+if ( ! function_exists( 'add_query_arg' ) ) {
+    function add_query_arg( ...$args ) {
+        if ( is_array( $args[0] ) ) {
+            if ( count( $args ) < 2 ) {
+                $uri = $_SERVER['REQUEST_URI'];
+            } else {
+                $uri = $args[1];
+            }
+        } else {
+            if ( count( $args ) < 3 ) {
+                $uri = $_SERVER['REQUEST_URI'];
+            } else {
+                $uri = $args[2];
+            }
+        }
+        $uri = str_replace('?', '&', $uri); // Simple mock
+        if ( is_array( $args[0] ) ) {
+            foreach( $args[0] as $k => $v ) {
+                $uri .= '&' . $k . '=' . $v;
+            }
+        } else {
+            $uri .= '&' . $args[0] . '=' . $args[1];
+        }
+        $uri = str_replace('&', '?', preg_replace('/&/', '?', $uri, 1));
+        return ltrim($uri, '&');
+    }
+}
+
+if ( ! function_exists( 'wp_get_referer' ) ) {
+    function wp_get_referer() {
+        global $mock_calls;
+        return isset( $mock_calls['wp_get_referer'] ) ? $mock_calls['wp_get_referer'] : false;
+    }
+}
+
+if ( ! function_exists( 'absint' ) ) {
+    function absint( $maybeint ) {
+        return abs( (int) $maybeint );
+    }
+}
+
+if ( ! function_exists( 'sanitize_text_field' ) ) {
+    function sanitize_text_field( $str ) {
+        return strip_tags( $str );
+    }
+}
+
+if ( ! function_exists( 'wp_kses_post' ) ) {
+    function wp_kses_post( $data ) {
+        return strip_tags( $data, '<b><i><strong><em><a><p><br><ul><ol><li>' ); // rough mock
     }
 }
 
