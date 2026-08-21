@@ -202,3 +202,19 @@ if ( ! function_exists( 'wp_create_nonce' ) ) {
         return 'mock_nonce_' . $action;
     }
 }
+
+// Mock get_posts
+if ( ! function_exists( 'get_posts' ) ) {
+    function get_posts( $args = [] ) {
+        global $mock_calls;
+        $mock_calls['get_posts'][] = $args;
+        return [];
+    }
+}
+
+// Mock esc_attr_e
+if ( ! function_exists( 'esc_attr_e' ) ) {
+    function esc_attr_e( $text, $domain = 'default' ) {
+        echo esc_attr( $text );
+    }
+}
