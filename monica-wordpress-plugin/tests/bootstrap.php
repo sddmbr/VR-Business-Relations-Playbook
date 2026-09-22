@@ -222,3 +222,27 @@ if ( ! function_exists( 'wp_create_nonce' ) ) {
         return 'mock_nonce_' . $action;
     }
 }
+
+if ( ! function_exists( 'wp_verify_nonce' ) ) {
+    function wp_verify_nonce( $nonce, $action = -1 ) {
+        global $mock_calls;
+        if ( isset( $mock_calls['wp_verify_nonce'] ) ) {
+            return $mock_calls['wp_verify_nonce'];
+        }
+        return false;
+    }
+}
+
+$GLOBALS['mock_update_post_meta'] = [];
+
+if ( ! function_exists( 'update_post_meta' ) ) {
+    function update_post_meta( $post_id, $meta_key, $meta_value, $prev_value = '' ) {
+        global $mock_update_post_meta;
+        $mock_update_post_meta[] = [
+            'post_id' => $post_id,
+            'meta_key' => $meta_key,
+            'meta_value' => $meta_value
+        ];
+        return true;
+    }
+}
