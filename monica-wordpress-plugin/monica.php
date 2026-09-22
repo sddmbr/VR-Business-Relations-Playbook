@@ -80,7 +80,7 @@ function monica_integration_add_reminder() {
             return;
         }
 
-        $contact_id = absint( $_POST['monica_contact_id'] ?? 0 );
+        $contact_id = get_post_meta( $post_id, '_monica_contact_id', true );
         $title      = sanitize_text_field( $_POST['monica_reminder_title'] ?? '' );
         $date       = sanitize_text_field( $_POST['monica_reminder_date'] ?? '' );
 
@@ -116,7 +116,7 @@ function monica_integration_add_note() {
             return;
         }
 
-        $contact_id = absint( $_POST['monica_contact_id'] ?? 0 );
+        $contact_id = get_post_meta( $post_id, '_monica_contact_id', true );
         $body       = wp_kses_post( $_POST['monica_note_body'] ?? '' );
 
         if ( ! $contact_id || ! $body ) {
@@ -150,7 +150,7 @@ function monica_integration_add_relationship() {
             return;
         }
 
-        $contact_id           = absint( $_POST['monica_contact_id'] ?? 0 );
+        $contact_id           = get_post_meta( $post_id, '_monica_contact_id', true );
         $related_contact_id   = absint( $_POST['monica_related_contact_id'] ?? 0 );
         $relationship_type_id = absint( $_POST['monica_relationship_type_id'] ?? 0 );
 
