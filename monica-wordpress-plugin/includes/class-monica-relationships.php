@@ -26,7 +26,16 @@ class Monica_Relationships {
             return;
         }
 
-        $relationships = $api->get( "contacts/{$monica_contact_id}/relationships" );
+        $transient_key = "monica_relationships_{$monica_contact_id}";
+        $relationships = get_transient( $transient_key );
+
+        if ( false === $relationships ) {
+            $relationships = $api->get( "contacts/{$monica_contact_id}/relationships" );
+
+            if ( ! is_wp_error( $relationships ) ) {
+                set_transient( $transient_key, $relationships, 5 * MINUTE_IN_SECONDS );
+            }
+        }
 
         if ( is_wp_error( $relationships ) ) {
             echo '<p>' . $relationships->get_error_message() . '</p>';
