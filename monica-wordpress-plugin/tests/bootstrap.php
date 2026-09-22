@@ -222,3 +222,110 @@ if ( ! function_exists( 'wp_create_nonce' ) ) {
         return 'mock_nonce_' . $action;
     }
 }
+
+if ( ! function_exists( 'wp_verify_nonce' ) ) {
+    function wp_verify_nonce( $nonce, $action = -1 ) {
+        global $mock_calls;
+        if ( isset( $mock_calls['wp_verify_nonce_return'] ) ) {
+            return $mock_calls['wp_verify_nonce_return'];
+        }
+        return $nonce === 'mock_nonce_' . $action;
+    }
+}
+
+if ( ! function_exists( 'current_user_can' ) ) {
+    function current_user_can( $capability, ...$args ) {
+        global $mock_calls;
+        if ( isset( $mock_calls['current_user_can_return'] ) ) {
+            return $mock_calls['current_user_can_return'];
+        }
+        return true;
+    }
+}
+
+if ( ! function_exists( 'wp_safe_redirect' ) ) {
+    function wp_safe_redirect( $location, $status = 302, $x_redirect_by = 'WordPress' ) {
+        global $mock_calls;
+        $mock_calls['wp_safe_redirect'] = $location;
+        throw new Exception( "wp_safe_redirect:" . $location );
+    }
+}
+
+if ( ! function_exists( 'wp_get_referer' ) ) {
+    function wp_get_referer() {
+        global $mock_calls;
+        if ( isset( $mock_calls['wp_get_referer_return'] ) ) {
+            return $mock_calls['wp_get_referer_return'];
+        }
+        return false;
+    }
+}
+
+if ( ! function_exists( 'add_query_arg' ) ) {
+    function add_query_arg( ...$args ) {
+        if ( is_array( $args[0] ) ) {
+            if ( count( $args ) < 2 || false === $args[1] ) {
+                $uri = $_SERVER['REQUEST_URI'] ?? '';
+            } else {
+                $uri = $args[1];
+            }
+        } else {
+            if ( count( $args ) < 3 || false === $args[2] ) {
+                $uri = $_SERVER['REQUEST_URI'] ?? '';
+            } else {
+                $uri = $args[2];
+            }
+        }
+
+        if ( is_array( $args[0] ) ) {
+            $params = $args[0];
+        } else {
+            $params = [ $args[0] => $args[1] ];
+        }
+
+        $parsed = parse_url($uri);
+        $query = [];
+        if (isset($parsed['query'])) {
+            parse_str($parsed['query'], $query);
+        }
+
+        $query = array_merge($query, $params);
+        $queryString = http_build_query($query);
+
+        $result = '';
+        if (isset($parsed['scheme'])) $result .= $parsed['scheme'] . '://';
+        if (isset($parsed['host'])) $result .= $parsed['host'];
+        if (isset($parsed['path'])) $result .= $parsed['path'];
+        if (!empty($queryString)) $result .= '?' . $queryString;
+
+        return $result;
+    }
+}
+
+if ( ! function_exists( 'absint' ) ) {
+    function absint( $maybeint ) {
+        return abs( (int) $maybeint );
+    }
+}
+
+if ( ! function_exists( 'sanitize_text_field' ) ) {
+    function sanitize_text_field( $str ) {
+        return strip_tags( trim( $str ) );
+    }
+}
+
+if ( ! defined( 'WPINC' ) ) {
+    define( 'WPINC', 'wp-includes' );
+}
+
+if ( ! function_exists( 'plugin_dir_path' ) ) {
+    function plugin_dir_path( $file ) {
+        return trailingslashit( dirname( $file ) );
+    }
+}
+
+if ( ! function_exists( 'trailingslashit' ) ) {
+    function trailingslashit( $string ) {
+        return rtrim( $string, '/\\' ) . '/';
+    }
+}
