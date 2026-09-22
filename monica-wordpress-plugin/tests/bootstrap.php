@@ -222,3 +222,15 @@ if ( ! function_exists( 'wp_create_nonce' ) ) {
         return 'mock_nonce_' . $action;
     }
 }
+
+if ( ! function_exists( 'get_current_user_id' ) ) {
+    function get_current_user_id() {
+        return 1;
+    }
+}
+
+if ( ! function_exists( 'wp_generate_password' ) ) {
+    function wp_generate_password( $length = 12, $special_chars = true, $extra_special_chars = false ) {
+        return 'mock_password';
+    }
+}

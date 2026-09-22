@@ -9,7 +9,7 @@ class Test_Class_Monica_Api {
         $api = new Monica_API();
         $url = $api->get_authorization_url( $redirect_uri );
 
-        $expected = 'https://app.monicahq.com/oauth/authorize?client_id=test_client_id&redirect_uri=https%3A%2F%2Fexample.com%2Fcallback&response_type=code&state=mock_nonce_monica_oauth_state';
+        $expected = 'https://app.monicahq.com/oauth/authorize?client_id=test_client_id&redirect_uri=https%3A%2F%2Fexample.com%2Fcallback&response_type=code&state=mock_password';
 
         assertEquals( $expected, $url, 'The authorization URL should be correctly constructed.' );
     }
@@ -22,7 +22,7 @@ class Test_Class_Monica_Api {
         $url = $api->get_authorization_url( $redirect_uri );
 
         // get_option returns false if not set in our mock, http_build_query converts false to 0
-        $expected = 'https://app.monicahq.com/oauth/authorize?client_id=0&redirect_uri=https%3A%2F%2Fexample.com%2Fcallback&response_type=code&state=mock_nonce_monica_oauth_state';
+        $expected = 'https://app.monicahq.com/oauth/authorize?client_id=0&redirect_uri=https%3A%2F%2Fexample.com%2Fcallback&response_type=code&state=mock_password';
 
         assertEquals( $expected, $url, 'The authorization URL should handle missing client_id gracefully.' );
     }
@@ -35,7 +35,7 @@ class Test_Class_Monica_Api {
         $url = $api->get_authorization_url( $redirect_uri );
 
         $encoded_uri = urlencode( $redirect_uri );
-        $expected = "https://app.monicahq.com/oauth/authorize?client_id=test_client_id&redirect_uri=$encoded_uri&response_type=code&state=mock_nonce_monica_oauth_state";
+        $expected = "https://app.monicahq.com/oauth/authorize?client_id=test_client_id&redirect_uri=$encoded_uri&response_type=code&state=mock_password";
 
         assertEquals( $expected, $url, 'The redirect URI should be URL encoded.' );
     }

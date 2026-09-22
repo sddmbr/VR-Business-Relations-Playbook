@@ -5,11 +5,14 @@ class Monica_API {
     private $api_url = 'https://app.monicahq.com/api/';
 
     public function get_authorization_url( $redirect_uri ) {
+        $state = wp_generate_password( 24, false, false );
+        set_transient( 'monica_oauth_state_' . get_current_user_id(), $state, 10 * MINUTE_IN_SECONDS );
+
         $params = [
             'client_id'     => get_option( 'monica_client_id' ),
             'redirect_uri'  => $redirect_uri,
             'response_type' => 'code',
-            'state'         => wp_create_nonce( 'monica_oauth_state' ),
+            'state'         => $state,
         ];
 
         return 'https://app.monicahq.com/oauth/authorize?' . http_build_query( $params );

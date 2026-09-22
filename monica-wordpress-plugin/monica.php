@@ -39,10 +39,14 @@ function monica_integration_oauth_redirect() {
     }
 
     if ( isset( $_GET['page'] ) && 'monica-integration' === $_GET['page'] && isset( $_GET['code'] ) ) {
-        if ( ! isset( $_GET['state'] ) || ! wp_verify_nonce( $_GET['state'], 'monica_oauth_state' ) ) {
+        $expected_state = get_transient( 'monica_oauth_state_' . get_current_user_id() );
+
+        if ( ! isset( $_GET['state'] ) || empty( $expected_state ) || ! hash_equals( $expected_state, $_GET['state'] ) ) {
             wp_safe_redirect( admin_url( 'options-general.php?page=monica-integration&monica_error=invalid_state' ) );
             exit;
         }
+
+        delete_transient( 'monica_oauth_state_' . get_current_user_id() );
 
         $api = new Monica_API();
         $redirect_uri = admin_url( 'options-general.php?page=monica-integration' );
