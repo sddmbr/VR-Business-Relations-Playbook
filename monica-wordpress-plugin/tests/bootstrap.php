@@ -222,3 +222,50 @@ if ( ! function_exists( 'wp_create_nonce' ) ) {
         return 'mock_nonce_' . $action;
     }
 }
+
+if ( ! function_exists( 'wp_verify_nonce' ) ) {
+    function wp_verify_nonce( $nonce, $action = -1 ) {
+        global $mock_verify_nonce;
+        if ( isset( $mock_verify_nonce ) ) {
+            return $mock_verify_nonce;
+        }
+        return false;
+    }
+}
+
+if ( ! function_exists( 'current_user_can' ) ) {
+    function current_user_can( $capability, ...$args ) {
+        global $mock_current_user_can;
+        if ( isset( $mock_current_user_can ) ) {
+            return $mock_current_user_can;
+        }
+        return true;
+    }
+}
+
+if ( ! function_exists( 'sanitize_text_field' ) ) {
+    function sanitize_text_field( $str ) {
+        return $str;
+    }
+}
+
+if ( ! function_exists( 'sanitize_email' ) ) {
+    function sanitize_email( $email ) {
+        return $email;
+    }
+}
+
+if ( ! function_exists( 'update_post_meta' ) ) {
+    function update_post_meta( $post_id, $meta_key, $meta_value, $prev_value = '' ) {
+        global $mock_update_post_meta;
+        if ( ! isset( $mock_update_post_meta ) ) {
+            $mock_update_post_meta = [];
+        }
+        $mock_update_post_meta[] = [
+            'post_id' => $post_id,
+            'meta_key' => $meta_key,
+            'meta_value' => $meta_value
+        ];
+        return true;
+    }
+}
