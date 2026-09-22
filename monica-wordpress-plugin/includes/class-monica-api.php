@@ -4,6 +4,28 @@ class Monica_API {
 
     private $api_url = 'https://app.monicahq.com/api/';
 
+    private function is_valid_endpoint( $endpoint ) {
+        $parsed = parse_url( $endpoint );
+        if ( $parsed === false ) {
+            return false;
+        }
+
+        // Prevent path traversal
+        if ( ! empty( $parsed['path'] ) ) {
+            $decoded_path = urldecode( $parsed['path'] );
+            if ( preg_match( '#(?:^|/)\.\.(?:/|$)#', $decoded_path ) ) {
+                return false;
+            }
+        }
+
+        // Disallow providing an absolute URL
+        if ( ! empty( $parsed['scheme'] ) || ! empty( $parsed['host'] ) ) {
+            return false;
+        }
+
+        return true;
+    }
+
     public function get_authorization_url( $redirect_uri ) {
         $params = [
             'client_id'     => get_option( 'monica_client_id' ),
@@ -39,6 +61,10 @@ class Monica_API {
     }
 
     public function get( $endpoint, $args = [] ) {
+        if ( ! $this->is_valid_endpoint( $endpoint ) ) {
+            return new WP_Error( 'invalid_endpoint', __( 'Invalid API endpoint.', 'monica-integration' ) );
+        }
+
         $access_token = get_option( 'monica_access_token' );
 
         if ( ! $access_token ) {
@@ -62,6 +88,10 @@ class Monica_API {
     }
 
     public function post( $endpoint, $args = [] ) {
+        if ( ! $this->is_valid_endpoint( $endpoint ) ) {
+            return new WP_Error( 'invalid_endpoint', __( 'Invalid API endpoint.', 'monica-integration' ) );
+        }
+
         $access_token = get_option( 'monica_access_token' );
 
         if ( ! $access_token ) {
@@ -86,6 +116,10 @@ class Monica_API {
     }
 
     public function put( $endpoint, $args = [] ) {
+        if ( ! $this->is_valid_endpoint( $endpoint ) ) {
+            return new WP_Error( 'invalid_endpoint', __( 'Invalid API endpoint.', 'monica-integration' ) );
+        }
+
         $access_token = get_option( 'monica_access_token' );
 
         if ( ! $access_token ) {

@@ -100,4 +100,34 @@ class Test_Class_Monica_Api {
         assertEquals( true, is_wp_error( $result ), 'Expected a WP_Error to be returned' );
         assertEquals( 'http_error', $result->get_error_code(), 'Expected the same error code' );
     }
+
+    public function test_invalid_endpoints_ssrf_protection() {
+        update_option( 'monica_access_token', 'token1' );
+
+        $api = new Monica_API();
+
+        $invalid_endpoints = [
+            '../contacts',
+            'contacts/..%2fnotes',
+            'http://evil.com',
+            '//evil.com',
+            'contacts/../../../../test',
+            'contacts/..',
+            '..',
+        ];
+
+        foreach ( $invalid_endpoints as $endpoint ) {
+            $result_get = $api->get( $endpoint );
+            assertEquals( true, is_wp_error( $result_get ), "Expected WP_Error for GET with invalid endpoint: {$endpoint}" );
+            assertEquals( 'invalid_endpoint', $result_get->get_error_code(), "Expected invalid_endpoint error code for GET with invalid endpoint: {$endpoint}" );
+
+            $result_post = $api->post( $endpoint );
+            assertEquals( true, is_wp_error( $result_post ), "Expected WP_Error for POST with invalid endpoint: {$endpoint}" );
+            assertEquals( 'invalid_endpoint', $result_post->get_error_code(), "Expected invalid_endpoint error code for POST with invalid endpoint: {$endpoint}" );
+
+            $result_put = $api->put( $endpoint );
+            assertEquals( true, is_wp_error( $result_put ), "Expected WP_Error for PUT with invalid endpoint: {$endpoint}" );
+            assertEquals( 'invalid_endpoint', $result_put->get_error_code(), "Expected invalid_endpoint error code for PUT with invalid endpoint: {$endpoint}" );
+        }
+    }
 }
