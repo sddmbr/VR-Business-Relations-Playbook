@@ -222,3 +222,10 @@ if ( ! function_exists( 'wp_create_nonce' ) ) {
         return 'mock_nonce_' . $action;
     }
 }
+
+if ( ! function_exists( 'wp_verify_nonce' ) ) {
+    function wp_verify_nonce( $nonce, $action = -1 ) {
+        // mock to return false by default, or true if it matches a specific valid string
+        return $nonce === 'valid_mock_nonce';
+    }
+}
