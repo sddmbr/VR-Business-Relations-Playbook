@@ -89,6 +89,11 @@ function monica_integration_add_reminder() {
             exit;
         }
 
+        if ( ! strtotime( $date ) ) {
+            wp_safe_redirect( add_query_arg( 'monica_error', 'invalid_date', wp_get_referer() ? wp_get_referer() : admin_url() ) );
+            exit;
+        }
+
         $api = new Monica_API();
         $api->post( "contacts/{$contact_id}/reminders", [
             'body' => json_encode( [
@@ -179,6 +184,12 @@ function monica_integration_admin_notices_empty_fields() {
         ?>
         <div class="notice notice-error is-dismissible">
             <p><?php _e( 'Please fill in all required fields.', 'monica-integration' ); ?></p>
+        </div>
+        <?php
+    } elseif ( isset( $_GET['monica_error'] ) && 'invalid_date' === $_GET['monica_error'] ) {
+        ?>
+        <div class="notice notice-error is-dismissible">
+            <p><?php _e( 'Invalid date format provided for reminder.', 'monica-integration' ); ?></p>
         </div>
         <?php
     }
