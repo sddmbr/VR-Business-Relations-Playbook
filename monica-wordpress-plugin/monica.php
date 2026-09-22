@@ -76,11 +76,11 @@ function monica_integration_add_reminder() {
         }
 
         $post_id = absint( $_POST['monica_post_id'] ?? 0 );
-        if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
+        if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) || get_post_type( $post_id ) !== 'monica_contact' ) {
             return;
         }
 
-        $contact_id = absint( $_POST['monica_contact_id'] ?? 0 );
+        $contact_id = absint( get_post_meta( $post_id, '_monica_contact_id', true ) );
         $title      = sanitize_text_field( $_POST['monica_reminder_title'] ?? '' );
         $date       = sanitize_text_field( $_POST['monica_reminder_date'] ?? '' );
 
@@ -112,11 +112,11 @@ function monica_integration_add_note() {
         }
 
         $post_id = absint( $_POST['monica_post_id'] ?? 0 );
-        if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
+        if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) || get_post_type( $post_id ) !== 'monica_contact' ) {
             return;
         }
 
-        $contact_id = absint( $_POST['monica_contact_id'] ?? 0 );
+        $contact_id = absint( get_post_meta( $post_id, '_monica_contact_id', true ) );
         $body       = wp_kses_post( $_POST['monica_note_body'] ?? '' );
 
         if ( ! $contact_id || ! $body ) {
@@ -146,11 +146,11 @@ function monica_integration_add_relationship() {
         }
 
         $post_id = absint( $_POST['monica_post_id'] ?? 0 );
-        if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
+        if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) || get_post_type( $post_id ) !== 'monica_contact' ) {
             return;
         }
 
-        $contact_id           = absint( $_POST['monica_contact_id'] ?? 0 );
+        $contact_id           = absint( get_post_meta( $post_id, '_monica_contact_id', true ) );
         $related_contact_id   = absint( $_POST['monica_related_contact_id'] ?? 0 );
         $relationship_type_id = absint( $_POST['monica_relationship_type_id'] ?? 0 );
 
