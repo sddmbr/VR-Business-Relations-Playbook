@@ -222,3 +222,39 @@ if ( ! function_exists( 'wp_create_nonce' ) ) {
         return 'mock_nonce_' . $action;
     }
 }
+
+if ( ! function_exists( 'wp_verify_nonce' ) ) {
+    function wp_verify_nonce( $nonce, $action = -1 ) {
+        return $nonce === 'mock_nonce_' . $action || $nonce === 'mock_nonce';
+    }
+}
+
+if ( ! function_exists( 'update_post_meta' ) ) {
+    function update_post_meta( $post_id, $meta_key, $meta_value, $prev_value = '' ) {
+        global $mock_post_meta;
+        $mock_post_meta[ $post_id ][ $meta_key ] = $meta_value;
+        return true;
+    }
+}
+
+if ( ! function_exists( 'current_user_can' ) ) {
+    function current_user_can( $capability, ...$args ) {
+        global $mock_current_user_can;
+        if ( isset( $mock_current_user_can ) ) {
+            return $mock_current_user_can;
+        }
+        return true;
+    }
+}
+
+if ( ! function_exists( 'sanitize_text_field' ) ) {
+    function sanitize_text_field( $str ) {
+        return trim( strip_tags( $str ) );
+    }
+}
+
+if ( ! function_exists( 'sanitize_email' ) ) {
+    function sanitize_email( $email ) {
+        return trim( $email );
+    }
+}
