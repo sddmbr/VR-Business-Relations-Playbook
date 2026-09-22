@@ -43,6 +43,17 @@ if ( ! function_exists( 'admin_url' ) ) {
 // Include plugin files
 require_once __DIR__ . '/../includes/class-monica-api.php';
 
+if ( ! function_exists( 'get_posts' ) ) {
+    function get_posts( $args = null ) {
+        global $mock_calls;
+        if ( ! isset( $mock_calls['get_posts'] ) ) {
+            $mock_calls['get_posts'] = [];
+        }
+        $mock_calls['get_posts'][] = $args;
+        return isset( $mock_calls['get_posts_return'] ) ? $mock_calls['get_posts_return'] : [];
+    }
+}
+
 // Global variable to store mocked options
 $GLOBALS['wp_options'] = [];
 
