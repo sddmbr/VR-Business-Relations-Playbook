@@ -146,7 +146,6 @@ $GLOBALS['mock_actions'] = [];
 $GLOBALS['mock_meta_boxes'] = [];
 $GLOBALS['mock_post_meta'] = [];
 
-
 if ( ! function_exists( 'wp_remote_get' ) ) {
     function wp_remote_get( $url, $args = [] ) {
         global $mock_calls;
@@ -220,5 +219,46 @@ if ( ! defined( 'MINUTE_IN_SECONDS' ) ) {
 if ( ! function_exists( 'wp_create_nonce' ) ) {
     function wp_create_nonce( $action = -1 ) {
         return 'mock_nonce_' . $action;
+    }
+}
+
+if ( ! function_exists( 'wp_verify_nonce' ) ) {
+    function wp_verify_nonce( $nonce, $action = -1 ) {
+        global $mock_verify_nonce_return;
+        return isset( $mock_verify_nonce_return ) ? $mock_verify_nonce_return : ( $nonce === 'valid_nonce' );
+    }
+}
+
+if ( ! function_exists( 'update_post_meta' ) ) {
+    function update_post_meta( $post_id, $meta_key, $meta_value, $prev_value = '' ) {
+        global $mock_update_post_meta_calls;
+        if ( ! isset( $mock_update_post_meta_calls ) ) {
+            $mock_update_post_meta_calls = [];
+        }
+        $mock_update_post_meta_calls[] = [
+            'post_id' => $post_id,
+            'meta_key' => $meta_key,
+            'meta_value' => $meta_value
+        ];
+        return true;
+    }
+}
+
+if ( ! function_exists( 'current_user_can' ) ) {
+    function current_user_can( $capability, ...$args ) {
+        global $mock_current_user_can_return;
+        return isset( $mock_current_user_can_return ) ? $mock_current_user_can_return : true;
+    }
+}
+
+if ( ! function_exists( 'sanitize_text_field' ) ) {
+    function sanitize_text_field( $str ) {
+        return $str;
+    }
+}
+
+if ( ! function_exists( 'sanitize_email' ) ) {
+    function sanitize_email( $str ) {
+        return $str;
     }
 }
