@@ -15,6 +15,17 @@ class Monica_API {
         return 'https://app.monicahq.com/oauth/authorize?' . http_build_query( $params );
     }
 
+    private function parse_response( $response ) {
+        if ( is_wp_error( $response ) ) {
+            return $response;
+        }
+
+        $body = wp_remote_retrieve_body( $response );
+        $data = json_decode( $body, true );
+
+        return $data;
+    }
+
     public function get_access_token( $code, $redirect_uri ) {
         $params = [
             'grant_type'    => 'authorization_code',
@@ -28,14 +39,7 @@ class Monica_API {
             'body' => $params,
         ] );
 
-        if ( is_wp_error( $response ) ) {
-            return $response;
-        }
-
-        $body = wp_remote_retrieve_body( $response );
-        $data = json_decode( $body, true );
-
-        return $data;
+        return $this->parse_response( $response );
     }
 
     public function get( $endpoint, $args = [] ) {
@@ -51,14 +55,7 @@ class Monica_API {
 
         $response = wp_remote_get( $this->api_url . $endpoint, $args );
 
-        if ( is_wp_error( $response ) ) {
-            return $response;
-        }
-
-        $body = wp_remote_retrieve_body( $response );
-        $data = json_decode( $body, true );
-
-        return $data;
+        return $this->parse_response( $response );
     }
 
     public function post( $endpoint, $args = [] ) {
@@ -75,14 +72,7 @@ class Monica_API {
 
         $response = wp_remote_post( $this->api_url . $endpoint, $args );
 
-        if ( is_wp_error( $response ) ) {
-            return $response;
-        }
-
-        $body = wp_remote_retrieve_body( $response );
-        $data = json_decode( $body, true );
-
-        return $data;
+        return $this->parse_response( $response );
     }
 
     public function put( $endpoint, $args = [] ) {
@@ -100,13 +90,6 @@ class Monica_API {
 
         $response = wp_remote_request( $this->api_url . $endpoint, $args );
 
-        if ( is_wp_error( $response ) ) {
-            return $response;
-        }
-
-        $body = wp_remote_retrieve_body( $response );
-        $data = json_decode( $body, true );
-
-        return $data;
+        return $this->parse_response( $response );
     }
 }
