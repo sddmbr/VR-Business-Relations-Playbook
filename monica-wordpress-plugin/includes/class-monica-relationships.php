@@ -72,16 +72,24 @@ class Monica_Relationships {
                 <label for="monica_related_contact_id"><?php _e( 'Contact', 'monica-integration' ); ?></label>
                 <select id="monica_related_contact_id" name="monica_related_contact_id">
                     <?php
-                    $contacts = get_posts( [
-                        'post_type'      => 'monica_contact',
-                        'posts_per_page' => -1,
-                        'post__not_in'   => [ $post->ID ],
-                    ] );
+                    global $wpdb;
+                    $query = $wpdb->prepare(
+                        "SELECT p.post_title, pm.meta_value as monica_id
+                         FROM {$wpdb->posts} p
+                         INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
+                         WHERE p.post_type = 'monica_contact'
+                           AND p.post_status = 'publish'
+                           AND pm.meta_key = '_monica_contact_id'
+                           AND p.ID != %d
+                         ORDER BY p.post_title ASC",
+                        $post->ID
+                    );
+                    $contacts = $wpdb->get_results( $query );
+
                     if ( ! empty( $contacts ) ) {
                         foreach ( $contacts as $contact ) {
-                            $monica_id = get_post_meta( $contact->ID, '_monica_contact_id', true );
-                            if ( $monica_id ) {
-                                echo '<option value="' . esc_attr( $monica_id ) . '">' . esc_html( $contact->post_title ) . '</option>';
+                            if ( ! empty( $contact->monica_id ) ) {
+                                echo '<option value="' . esc_attr( $contact->monica_id ) . '">' . esc_html( $contact->post_title ) . '</option>';
                             }
                         }
                     }
