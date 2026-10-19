@@ -23,8 +23,10 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/class-monica-contacts.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-monica-reminders.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-monica-notes.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-monica-relationships.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-monica-encryption.php';
 
 function monica_integration_init() {
+    Monica_Encryption::init();
     new Monica_Settings();
     new Monica_Contacts();
     new Monica_Reminders();

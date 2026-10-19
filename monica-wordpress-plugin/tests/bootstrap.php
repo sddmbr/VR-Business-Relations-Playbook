@@ -46,6 +46,14 @@ require_once __DIR__ . '/../includes/class-monica-api.php';
 // Global variable to store mocked options
 $GLOBALS['wp_options'] = [];
 
+if ( ! function_exists( 'add_filter' ) ) {
+    function add_filter( $tag, $function_to_add, $priority = 10, $accepted_args = 1 ) {
+        global $mock_filters;
+        $mock_filters[] = [ 'tag' => $tag, 'function' => $function_to_add ];
+        return true;
+    }
+}
+
 if ( ! function_exists( 'add_action' ) ) {
     function add_action( $tag, $function_to_add, $priority = 10, $accepted_args = 1 ) {
         global $mock_actions;
