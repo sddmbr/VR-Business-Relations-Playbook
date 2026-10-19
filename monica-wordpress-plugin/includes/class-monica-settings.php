@@ -19,7 +19,17 @@ class Monica_Settings {
 
     public function register_settings() {
         register_setting( 'monica_integration', 'monica_client_id' );
-        register_setting( 'monica_integration', 'monica_client_secret' );
+        register_setting( 'monica_integration', 'monica_client_secret', [
+            'sanitize_callback' => [ $this, 'sanitize_client_secret' ],
+        ] );
+    }
+
+    public function sanitize_client_secret( $value ) {
+        $existing = get_option( 'monica_client_secret' );
+        if ( empty( $value ) || $value === '********' ) {
+            return $existing;
+        }
+        return sanitize_text_field( $value );
     }
 
     public function render_settings_page() {
@@ -38,7 +48,10 @@ class Monica_Settings {
                     </tr>
                     <tr valign="top">
                         <th scope="row"><?php _e( 'Client Secret', 'monica-integration' ); ?></th>
-                        <td><input type="password" name="monica_client_secret" value="<?php echo esc_attr( get_option( 'monica_client_secret' ) ); ?>" /></td>
+                        <td>
+                            <?php $secret = get_option( 'monica_client_secret' ) ? '********' : ''; ?>
+                            <input type="password" name="monica_client_secret" value="<?php echo esc_attr( $secret ); ?>" />
+                        </td>
                     </tr>
                 </table>
                 <?php submit_button(); ?>
