@@ -52,7 +52,7 @@ function monica_integration_oauth_redirect() {
             update_option( 'monica_access_token', $data['access_token'] );
         }
 
-        wp_redirect( $redirect_uri );
+        wp_safe_redirect( $redirect_uri );
         exit;
     }
 }
