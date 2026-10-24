@@ -68,6 +68,17 @@ if ( ! function_exists( 'add_meta_box' ) ) {
     }
 }
 
+if ( ! function_exists( 'get_post_type' ) ) {
+    function get_post_type( $post = null ) {
+        global $mock_post_types;
+        $post_id = is_object( $post ) ? $post->ID : $post;
+        if ( isset( $mock_post_types[ $post_id ] ) ) {
+            return $mock_post_types[ $post_id ];
+        }
+        return 'monica_contact'; // Default for existing tests that assume it's valid
+    }
+}
+
 if ( ! function_exists( 'get_post_meta' ) ) {
     function get_post_meta( $post_id, $key = '', $single = false ) {
         global $mock_post_meta;
